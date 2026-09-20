@@ -84,6 +84,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["OperationsController_list"];
+        put?: never;
+        post: operations["OperationsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/operations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["OperationsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["OperationsController_patch"];
+        trace?: never;
+    };
+    "/v1/operations/{id}/reversal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["OperationsController_reverse"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/me": {
         parameters: {
             query?: never;
@@ -254,7 +302,7 @@ export interface components {
         };
         ErrorResponseDto: {
             /** @enum {string} */
-            code: "BAD_REQUEST" | "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND_OR_NOT_OWNED" | "IDEMPOTENCY_CONFLICT" | "CONCURRENT_UPDATE" | "RATE_LIMITED" | "NOT_IMPLEMENTED" | "INTERNAL_ERROR" | "WALLET_CURRENCY_NOT_ALLOWED" | "CREDIT_NOT_VALID_FOR_SALARY_DESTINATION" | "BANK_REQUIRED" | "UNKNOWN_BILLING_PERIOD" | "INSUFFICIENT_KNOWN_BALANCE" | "DUE_OVERALLOCATED" | "FX_RATE_REQUIRED" | "LOAN_RECONCILIATION_REQUIRED" | "FORECAST_NOT_ACTUAL" | "BUDGET_CURRENCY_MISMATCH" | "CURRENCY_NOT_IN_CATALOG" | "CURRENCY_NOT_ENABLED" | "INVALID_CATEGORY_PARENT" | "BANK_ARCHIVED";
+            code: "BAD_REQUEST" | "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND_OR_NOT_OWNED" | "IDEMPOTENCY_CONFLICT" | "CONCURRENT_UPDATE" | "RATE_LIMITED" | "NOT_IMPLEMENTED" | "INTERNAL_ERROR" | "WALLET_CURRENCY_NOT_ALLOWED" | "CREDIT_NOT_VALID_FOR_SALARY_DESTINATION" | "BANK_REQUIRED" | "UNKNOWN_BILLING_PERIOD" | "INSUFFICIENT_KNOWN_BALANCE" | "DUE_OVERALLOCATED" | "FX_RATE_REQUIRED" | "LOAN_RECONCILIATION_REQUIRED" | "FORECAST_NOT_ACTUAL" | "BUDGET_CURRENCY_MISMATCH" | "CURRENCY_NOT_IN_CATALOG" | "CURRENCY_NOT_ENABLED" | "INVALID_CATEGORY_PARENT" | "BANK_ARCHIVED" | "SETTLEMENT_MISMATCH" | "CATEGORY_FAMILY_MISMATCH" | "CATEGORY_ARCHIVED" | "WALLET_ARCHIVED" | "OPERATION_ALREADY_REVERSED" | "INVALID_AMOUNT";
             message: string;
             fieldErrors?: {
                 [key: string]: string;
@@ -434,6 +482,527 @@ export interface operations {
             };
         };
     };
+    OperationsController_list: {
+        parameters: {
+            query?: {
+                cursor?: string;
+                limit?: number;
+                family?: string;
+                categoryId?: string;
+                walletId?: string;
+                referenceId?: string;
+                currency?: string;
+                state?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: {
+                            /** Format: uuid */
+                            id: string;
+                            /** @enum {string} */
+                            family: "INCOME" | "EXPENSE";
+                            /** @enum {string} */
+                            kind: "EARNED_INCOME" | "INCURRED_EXPENSE";
+                            /** Format: uuid */
+                            categoryId: string | null;
+                            categoryName: string | null;
+                            concept: string;
+                            /** Format: uuid */
+                            referenceId: string | null;
+                            referenceName: string | null;
+                            economicPeriod: string | null;
+                            note: string | null;
+                            /** @enum {string} */
+                            state: "CONFIRMED" | "REVERSED";
+                            /** @description Instante ISO 8601 */
+                            recordedAt: string;
+                            /** @description LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez */
+                            economicComponents: {
+                                /** @enum {string} */
+                                direction: "INCOME" | "EXPENSE";
+                                currency: string;
+                                amount: string;
+                                /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
+                                economicDate: string | null;
+                                economicPeriod: string | null;
+                            }[];
+                            /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
+                            settlements: {
+                                /** Format: uuid */
+                                walletId: string;
+                                walletName: string;
+                                currency: string;
+                                /** @description Magnitud positiva; el sentido lo da la familia */
+                                amount: string;
+                                effectiveDate: string;
+                            }[];
+                            version: number;
+                        }[];
+                        nextCursor: string | null;
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    OperationsController_create: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Mismo key+contenido => misma respuesta sin duplicar; contenido distinto => 409 IDEMPOTENCY_CONFLICT */
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    family: "INCOME" | "EXPENSE";
+                    /**
+                     * @description Opcional: se deriva de la familia
+                     * @enum {string}
+                     */
+                    kind?: "EARNED_INCOME" | "INCURRED_EXPENSE";
+                    /** Format: uuid */
+                    categoryId?: string | null;
+                    concept: string;
+                    /** Format: uuid */
+                    referenceId?: string | null;
+                    /** @description Período al que pertenece lo ganado/gastado (ej. sueldo de agosto) */
+                    economicPeriod?: string | null;
+                    note?: string | null;
+                    economicComponents: {
+                        /** @enum {string} */
+                        direction?: "INCOME" | "EXPENSE";
+                        amount: string;
+                        currency: string;
+                        economicDate?: string | null;
+                        economicPeriod?: string | null;
+                    }[];
+                    settlements: {
+                        /** Format: uuid */
+                        walletId: string;
+                        amount: string;
+                        currency: string;
+                        effectiveDate: string;
+                    }[];
+                    /**
+                     * @description Todavía no soportada (D-08): debe ser null u omitirse
+                     * @enum {string|null}
+                     */
+                    recurrence?: null;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        family: "INCOME" | "EXPENSE";
+                        /** @enum {string} */
+                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE";
+                        /** Format: uuid */
+                        categoryId: string | null;
+                        categoryName: string | null;
+                        concept: string;
+                        /** Format: uuid */
+                        referenceId: string | null;
+                        referenceName: string | null;
+                        economicPeriod: string | null;
+                        note: string | null;
+                        /** @enum {string} */
+                        state: "CONFIRMED" | "REVERSED";
+                        /** @description Instante ISO 8601 */
+                        recordedAt: string;
+                        /** @description LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez */
+                        economicComponents: {
+                            /** @enum {string} */
+                            direction: "INCOME" | "EXPENSE";
+                            currency: string;
+                            amount: string;
+                            /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
+                            economicDate: string | null;
+                            economicPeriod: string | null;
+                        }[];
+                        /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
+                        settlements: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            currency: string;
+                            /** @description Magnitud positiva; el sentido lo da la familia */
+                            amount: string;
+                            effectiveDate: string;
+                        }[];
+                        version: number;
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description IDEMPOTENCY_CONFLICT o solicitud en curso */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description SETTLEMENT_MISMATCH, WALLET_CURRENCY_NOT_ALLOWED, CREDIT_NOT_VALID_FOR_SALARY_DESTINATION, INVALID_AMOUNT, CATEGORY_FAMILY_MISMATCH, … */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Gasto con tarjeta de crédito o recurrencia: fases posteriores */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    OperationsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        family: "INCOME" | "EXPENSE";
+                        /** @enum {string} */
+                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE";
+                        /** Format: uuid */
+                        categoryId: string | null;
+                        categoryName: string | null;
+                        concept: string;
+                        /** Format: uuid */
+                        referenceId: string | null;
+                        referenceName: string | null;
+                        economicPeriod: string | null;
+                        note: string | null;
+                        /** @enum {string} */
+                        state: "CONFIRMED" | "REVERSED";
+                        /** @description Instante ISO 8601 */
+                        recordedAt: string;
+                        /** @description LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez */
+                        economicComponents: {
+                            /** @enum {string} */
+                            direction: "INCOME" | "EXPENSE";
+                            currency: string;
+                            amount: string;
+                            /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
+                            economicDate: string | null;
+                            economicPeriod: string | null;
+                        }[];
+                        /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
+                        settlements: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            currency: string;
+                            /** @description Magnitud positiva; el sentido lo da la familia */
+                            amount: string;
+                            effectiveDate: string;
+                        }[];
+                        version: number;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    OperationsController_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    categoryId?: string | null;
+                    /**
+                     * Format: uuid
+                     * @description Asociar o quitar una referencia NO crea otro gasto ni toca la caja
+                     */
+                    referenceId?: string | null;
+                    concept?: string;
+                    note?: string | null;
+                    expectedVersion?: number;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        family: "INCOME" | "EXPENSE";
+                        /** @enum {string} */
+                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE";
+                        /** Format: uuid */
+                        categoryId: string | null;
+                        categoryName: string | null;
+                        concept: string;
+                        /** Format: uuid */
+                        referenceId: string | null;
+                        referenceName: string | null;
+                        economicPeriod: string | null;
+                        note: string | null;
+                        /** @enum {string} */
+                        state: "CONFIRMED" | "REVERSED";
+                        /** @description Instante ISO 8601 */
+                        recordedAt: string;
+                        /** @description LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez */
+                        economicComponents: {
+                            /** @enum {string} */
+                            direction: "INCOME" | "EXPENSE";
+                            currency: string;
+                            amount: string;
+                            /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
+                            economicDate: string | null;
+                            economicPeriod: string | null;
+                        }[];
+                        /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
+                        settlements: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            currency: string;
+                            /** @description Magnitud positiva; el sentido lo da la familia */
+                            amount: string;
+                            effectiveDate: string;
+                        }[];
+                        version: number;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description CONCURRENT_UPDATE u OPERATION_ALREADY_REVERSED */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    OperationsController_reverse: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Mismo key+contenido => misma respuesta sin duplicar; contenido distinto => 409 IDEMPOTENCY_CONFLICT */
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        family: "INCOME" | "EXPENSE";
+                        /** @enum {string} */
+                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE";
+                        /** Format: uuid */
+                        categoryId: string | null;
+                        categoryName: string | null;
+                        concept: string;
+                        /** Format: uuid */
+                        referenceId: string | null;
+                        referenceName: string | null;
+                        economicPeriod: string | null;
+                        note: string | null;
+                        /** @enum {string} */
+                        state: "CONFIRMED" | "REVERSED";
+                        /** @description Instante ISO 8601 */
+                        recordedAt: string;
+                        /** @description LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez */
+                        economicComponents: {
+                            /** @enum {string} */
+                            direction: "INCOME" | "EXPENSE";
+                            currency: string;
+                            amount: string;
+                            /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
+                            economicDate: string | null;
+                            economicPeriod: string | null;
+                        }[];
+                        /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
+                        settlements: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            currency: string;
+                            /** @description Magnitud positiva; el sentido lo da la familia */
+                            amount: string;
+                            effectiveDate: string;
+                        }[];
+                        version: number;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description OPERATION_ALREADY_REVERSED, IDEMPOTENCY_CONFLICT o solicitud en curso */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
     MeController_get: {
         parameters: {
             query?: never;
@@ -577,6 +1146,8 @@ export interface operations {
                                 currency: string;
                                 /** @enum {string} */
                                 status: "unknown";
+                                /** @description Variación neta REGISTRADA (suma de movimientos). No es el saldo disponible */
+                                observedDelta: string;
                             }[];
                             version: number;
                         }[];
@@ -659,6 +1230,8 @@ export interface operations {
                             currency: string;
                             /** @enum {string} */
                             status: "unknown";
+                            /** @description Variación neta REGISTRADA (suma de movimientos). No es el saldo disponible */
+                            observedDelta: string;
                         }[];
                         version: number;
                     };
@@ -756,6 +1329,8 @@ export interface operations {
                             currency: string;
                             /** @enum {string} */
                             status: "unknown";
+                            /** @description Variación neta REGISTRADA (suma de movimientos). No es el saldo disponible */
+                            observedDelta: string;
                         }[];
                         version: number;
                     };
@@ -843,6 +1418,8 @@ export interface operations {
                             currency: string;
                             /** @enum {string} */
                             status: "unknown";
+                            /** @description Variación neta REGISTRADA (suma de movimientos). No es el saldo disponible */
+                            observedDelta: string;
                         }[];
                         version: number;
                     };
