@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0",
+  "syntheticOnly": true,
+  "notice": "Ejemplos de validación funcional de la conversación; NO son registros persistidos ni datos para poblar cuentas reales.",
+  "user": {"auth": "GOOGLE", "timeZone": "America/Argentina/Cordoba", "defaultCurrency": "ARS"},
+  "wallets": [
+    {"id": "wallet-bbva-master", "name": "BBVA Master", "type": "CREDIT", "bank": "BBVA", "currencies": ["ARS", "USD"], "billingMode": "VARIABLE_PER_PERIOD", "billingCalendarConfigured": false},
+    {"id": "wallet-eft", "name": "EFT", "type": "CASH", "location": "Casa", "currencies": ["ARS"], "openingBalanceKnown": false},
+    {"id": "wallet-usd-eft", "name": "USD EFT", "type": "CASH", "location": "Colchon", "currencies": ["USD"], "openingBalanceKnown": false}
+  ],
+  "operations": [
+    {"id": "op-tax", "family": "EXPENSE", "category": "Impuestos", "concept": "Impuesto municipal", "reference": {"name": "Dpto 0027", "externalCode": "xxxxx00027"}, "economic": [{"amount": "14999.00", "currency": "ARS", "date": "2026-09-19"}], "actual": [{"walletId": "wallet-eft", "amount": "-14999.00", "currency": "ARS", "date": "2026-09-19"}]},
+    {"id": "op-salary", "family": "INCOME", "category": "Sueldo", "economicPeriod": "2026-08", "economic": [{"amount": "1700.00", "currency": "ARS"},{"amount": "1200.00", "currency": "USD"}], "actual": [{"walletId": "wallet-eft", "amount": "1700.00", "currency": "ARS", "date": "2026-09-07"},{"walletId": "wallet-usd-eft", "amount": "1200.00", "currency": "USD", "date": "2026-09-07"}], "recurrence": {"frequency": "MONTHLY", "futureOnly": true}},
+    {"id": "op-loan-repayment", "family": "EXPENSE", "category": "Prestamo", "kind": "LOAN_PRINCIPAL_REPAYMENT", "economicExpenseAmount": "0.00", "actual": [{"walletId": "wallet-eft", "amount": "-500.00", "currency": "ARS", "date": "2026-09-19"}], "principalPaid": "500.00", "loanId": "loan-fiat-argo", "installmentAllocated": false}
+  ],
+  "loan": {"id": "loan-fiat-argo", "creditor": "Fiat", "originDate": "2026-08-01", "currency": "ARS", "declaredPrincipal": "17999.00", "principalPaidPrior": "0.00", "principalPaidActual": "500.00", "principalOutstanding": "17499.00", "originalInstallments": 18, "nominalInstallment": "11000.00", "declaredInstallmentsPaid": 2, "futureInstallments": 16, "projectedFuturePayments": "176000.00", "nextDueDate": "2026-10-05", "frequency": "MONTHLY", "needsReconciliation": true},
+  "expectedWalletNetChanges": {"wallet-eft": {"ARS": "-13799.00"}, "wallet-usd-eft": {"USD": "1200.00"}},
+  "expectedKnownBalances": {"wallet-eft": false, "wallet-usd-eft": false}
+}
