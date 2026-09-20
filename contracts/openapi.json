@@ -433,30 +433,180 @@
     "/v1/wallets": {
       "get": {
         "operationId": "WalletsController_list",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Cursor devuelto en nextCursor",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Máximo 100 (25 por defecto)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "includeArchived",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WalletListDto"
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "CASH",
+                              "DEBIT",
+                              "CREDIT"
+                            ]
+                          },
+                          "bankId": {
+                            "nullable": true,
+                            "description": "null para CASH; obligatorio en DEBIT/CREDIT",
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "bankName": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "locationText": {
+                            "nullable": true,
+                            "description": "Solo efectivo",
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "ACTIVE",
+                              "ARCHIVED"
+                            ]
+                          },
+                          "currencies": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Monedas habilitadas de la billetera"
+                          },
+                          "creditProfile": {
+                            "nullable": true,
+                            "description": "Solo crédito. PARTIAL = períodos aún sin configurar; nunca se inventan fechas",
+                            "type": "object",
+                            "properties": {
+                              "billingMode": {
+                                "type": "string",
+                                "enum": [
+                                  "FIXED_PATTERN",
+                                  "VARIABLE_PER_PERIOD"
+                                ]
+                              },
+                              "setupStatus": {
+                                "type": "string",
+                                "enum": [
+                                  "PARTIAL",
+                                  "COMPLETE"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "billingMode",
+                              "setupStatus"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "balances": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "currency": {
+                                  "type": "string"
+                                },
+                                "status": {
+                                  "type": "string",
+                                  "enum": [
+                                    "unknown"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "currency",
+                                "status"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "Saldo por moneda. \"unknown\" (≠ 0) mientras no exista saldo inicial verificado"
+                          },
+                          "version": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "type",
+                          "bankId",
+                          "bankName",
+                          "locationText",
+                          "status",
+                          "currencies",
+                          "creditProfile",
+                          "balances",
+                          "version"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "nextCursor": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ],
+                  "additionalProperties": false
                 }
               }
             }
           },
           "401": {
             "description": "Sin sesión válida",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseDto"
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "Aún sin implementar (Fase 2)",
             "content": {
               "application/json": {
                 "schema": {
@@ -481,20 +631,210 @@
           {
             "name": "Idempotency-Key",
             "in": "header",
-            "description": "Mismo key+payload devuelve el resultado previo; payload distinto => 409 IDEMPOTENCY_CONFLICT",
+            "description": "Mismo key+contenido => misma respuesta sin duplicar; contenido distinto => 409 IDEMPOTENCY_CONFLICT",
             "required": true,
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "CASH",
+                      "DEBIT",
+                      "CREDIT"
+                    ]
+                  },
+                  "bankId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "locationText": {
+                    "type": "string",
+                    "maxLength": 120
+                  },
+                  "currencies": {
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Z][A-Z0-9]{1,9}$"
+                    }
+                  },
+                  "creditProfile": {
+                    "description": "Obligatorio en CREDIT: elección explícita fijo/variable",
+                    "type": "object",
+                    "properties": {
+                      "billingMode": {
+                        "type": "string",
+                        "enum": [
+                          "FIXED_PATTERN",
+                          "VARIABLE_PER_PERIOD"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "billingMode"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "type",
+                  "currencies"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WalletDto"
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "CASH",
+                        "DEBIT",
+                        "CREDIT"
+                      ]
+                    },
+                    "bankId": {
+                      "nullable": true,
+                      "description": "null para CASH; obligatorio en DEBIT/CREDIT",
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "bankName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "locationText": {
+                      "nullable": true,
+                      "description": "Solo efectivo",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ACTIVE",
+                        "ARCHIVED"
+                      ]
+                    },
+                    "currencies": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Monedas habilitadas de la billetera"
+                    },
+                    "creditProfile": {
+                      "nullable": true,
+                      "description": "Solo crédito. PARTIAL = períodos aún sin configurar; nunca se inventan fechas",
+                      "type": "object",
+                      "properties": {
+                        "billingMode": {
+                          "type": "string",
+                          "enum": [
+                            "FIXED_PATTERN",
+                            "VARIABLE_PER_PERIOD"
+                          ]
+                        },
+                        "setupStatus": {
+                          "type": "string",
+                          "enum": [
+                            "PARTIAL",
+                            "COMPLETE"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "billingMode",
+                        "setupStatus"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "balances": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "currency": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "unknown"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "currency",
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Saldo por moneda. \"unknown\" (≠ 0) mientras no exista saldo inicial verificado"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "type",
+                    "bankId",
+                    "bankName",
+                    "locationText",
+                    "status",
+                    "currencies",
+                    "creditProfile",
+                    "balances",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
                 }
               }
             }
@@ -509,8 +849,434 @@
               }
             }
           },
-          "501": {
-            "description": "Aún sin implementar (Fase 2)",
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "IDEMPOTENCY_CONFLICT o solicitud en curso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "BANK_REQUIRED, BANK_ARCHIVED o WALLET_CURRENCY_NOT_ALLOWED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "wallets"
+        ]
+      }
+    },
+    "/v1/wallets/{id}": {
+      "get": {
+        "operationId": "WalletsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "CASH",
+                        "DEBIT",
+                        "CREDIT"
+                      ]
+                    },
+                    "bankId": {
+                      "nullable": true,
+                      "description": "null para CASH; obligatorio en DEBIT/CREDIT",
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "bankName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "locationText": {
+                      "nullable": true,
+                      "description": "Solo efectivo",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ACTIVE",
+                        "ARCHIVED"
+                      ]
+                    },
+                    "currencies": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Monedas habilitadas de la billetera"
+                    },
+                    "creditProfile": {
+                      "nullable": true,
+                      "description": "Solo crédito. PARTIAL = períodos aún sin configurar; nunca se inventan fechas",
+                      "type": "object",
+                      "properties": {
+                        "billingMode": {
+                          "type": "string",
+                          "enum": [
+                            "FIXED_PATTERN",
+                            "VARIABLE_PER_PERIOD"
+                          ]
+                        },
+                        "setupStatus": {
+                          "type": "string",
+                          "enum": [
+                            "PARTIAL",
+                            "COMPLETE"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "billingMode",
+                        "setupStatus"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "balances": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "currency": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "unknown"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "currency",
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Saldo por moneda. \"unknown\" (≠ 0) mientras no exista saldo inicial verificado"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "type",
+                    "bankId",
+                    "bankName",
+                    "locationText",
+                    "status",
+                    "currencies",
+                    "creditProfile",
+                    "balances",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "wallets"
+        ]
+      },
+      "patch": {
+        "operationId": "WalletsController_patch",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "locationText": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 120
+                  },
+                  "status": {
+                    "description": "ARCHIVED archiva; nunca se borra",
+                    "type": "string",
+                    "enum": [
+                      "ACTIVE",
+                      "ARCHIVED"
+                    ]
+                  },
+                  "addCurrencies": {
+                    "description": "Solo agregar monedas; quitar está pendiente de política",
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Z][A-Z0-9]{1,9}$"
+                    }
+                  },
+                  "expectedVersion": {
+                    "description": "Control optimista: si no coincide => 409 CONCURRENT_UPDATE",
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "CASH",
+                        "DEBIT",
+                        "CREDIT"
+                      ]
+                    },
+                    "bankId": {
+                      "nullable": true,
+                      "description": "null para CASH; obligatorio en DEBIT/CREDIT",
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "bankName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "locationText": {
+                      "nullable": true,
+                      "description": "Solo efectivo",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ACTIVE",
+                        "ARCHIVED"
+                      ]
+                    },
+                    "currencies": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Monedas habilitadas de la billetera"
+                    },
+                    "creditProfile": {
+                      "nullable": true,
+                      "description": "Solo crédito. PARTIAL = períodos aún sin configurar; nunca se inventan fechas",
+                      "type": "object",
+                      "properties": {
+                        "billingMode": {
+                          "type": "string",
+                          "enum": [
+                            "FIXED_PATTERN",
+                            "VARIABLE_PER_PERIOD"
+                          ]
+                        },
+                        "setupStatus": {
+                          "type": "string",
+                          "enum": [
+                            "PARTIAL",
+                            "COMPLETE"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "billingMode",
+                        "setupStatus"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "balances": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "currency": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "unknown"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "currency",
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Saldo por moneda. \"unknown\" (≠ 0) mientras no exista saldo inicial verificado"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "type",
+                    "bankId",
+                    "bankName",
+                    "locationText",
+                    "status",
+                    "currencies",
+                    "creditProfile",
+                    "balances",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONCURRENT_UPDATE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "WALLET_CURRENCY_NOT_ALLOWED",
             "content": {
               "application/json": {
                 "schema": {
@@ -1844,7 +2610,8 @@
               "BUDGET_CURRENCY_MISMATCH",
               "CURRENCY_NOT_IN_CATALOG",
               "CURRENCY_NOT_ENABLED",
-              "INVALID_CATEGORY_PARENT"
+              "INVALID_CATEGORY_PARENT",
+              "BANK_ARCHIVED"
             ]
           },
           "message": {
@@ -1868,83 +2635,6 @@
           "code",
           "message",
           "requestId"
-        ]
-      },
-      "WalletDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "CASH",
-              "DEBIT",
-              "CREDIT"
-            ]
-          },
-          "bankId": {
-            "type": "string",
-            "nullable": true,
-            "format": "uuid",
-            "description": "null para CASH; obligatorio en DEBIT/CREDIT"
-          },
-          "locationText": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "ACTIVE",
-              "ARCHIVED"
-            ]
-          },
-          "currencies": {
-            "description": "Monedas habilitadas (mínimo una para activar)",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "version": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "type",
-          "bankId",
-          "locationText",
-          "status",
-          "currencies",
-          "version"
-        ]
-      },
-      "WalletListDto": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/WalletDto"
-            }
-          },
-          "nextCursor": {
-            "type": "string",
-            "nullable": true,
-            "description": "Cursor estable para la página siguiente"
-          }
-        },
-        "required": [
-          "items",
-          "nextCursor"
         ]
       }
     }
