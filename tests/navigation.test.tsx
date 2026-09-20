@@ -1,5 +1,4 @@
 import { screen } from '@testing-library/react-native';
-import { MovementsScreen } from '@/app/movements/MovementsScreen';
 import { PlanningScreen } from '@/app/planning/PlanningScreen';
 import { ReportsScreen } from '@/app/reports/ReportsScreen';
 import { TABS } from '@/layout';
@@ -11,7 +10,6 @@ describe('navegación vacía (Fase 0)', () => {
   });
 
   it.each([
-    ['Movimientos', MovementsScreen, 'Fase 3'],
     ['Planificación', PlanningScreen, 'Fase 6'],
     ['Reportes', ReportsScreen, 'Fase 7'],
   ] as const)('%s muestra estado vacío y sin lógica de negocio', async (title, Screen, fase) => {

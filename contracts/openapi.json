@@ -264,6 +264,1401 @@
         ]
       }
     },
+    "/v1/operations": {
+      "get": {
+        "operationId": "OperationsController_list",
+        "parameters": [
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "family",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "walletId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "referenceId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "currency",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "family": {
+                            "type": "string",
+                            "enum": [
+                              "INCOME",
+                              "EXPENSE"
+                            ]
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "EARNED_INCOME",
+                              "INCURRED_EXPENSE"
+                            ]
+                          },
+                          "categoryId": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "categoryName": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "concept": {
+                            "type": "string"
+                          },
+                          "referenceId": {
+                            "nullable": true,
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "referenceName": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "economicPeriod": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "note": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "CONFIRMED",
+                              "REVERSED"
+                            ]
+                          },
+                          "recordedAt": {
+                            "type": "string",
+                            "description": "Instante ISO 8601"
+                          },
+                          "economicComponents": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "direction": {
+                                  "type": "string",
+                                  "enum": [
+                                    "INCOME",
+                                    "EXPENSE"
+                                  ]
+                                },
+                                "currency": {
+                                  "type": "string"
+                                },
+                                "amount": {
+                                  "type": "string"
+                                },
+                                "economicDate": {
+                                  "nullable": true,
+                                  "description": "Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy)",
+                                  "type": "string"
+                                },
+                                "economicPeriod": {
+                                  "nullable": true,
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "direction",
+                                "currency",
+                                "amount",
+                                "economicDate",
+                                "economicPeriod"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez"
+                          },
+                          "settlements": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "walletId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "walletName": {
+                                  "type": "string"
+                                },
+                                "currency": {
+                                  "type": "string"
+                                },
+                                "amount": {
+                                  "type": "string",
+                                  "description": "Magnitud positiva; el sentido lo da la familia"
+                                },
+                                "effectiveDate": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "walletId",
+                                "walletName",
+                                "currency",
+                                "amount",
+                                "effectiveDate"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja)"
+                          },
+                          "version": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "family",
+                          "kind",
+                          "categoryId",
+                          "categoryName",
+                          "concept",
+                          "referenceId",
+                          "referenceName",
+                          "economicPeriod",
+                          "note",
+                          "state",
+                          "recordedAt",
+                          "economicComponents",
+                          "settlements",
+                          "version"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "nextCursor": {
+                      "nullable": true,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "operations"
+        ]
+      },
+      "post": {
+        "operationId": "OperationsController_create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Mismo key+contenido => misma respuesta sin duplicar; contenido distinto => 409 IDEMPOTENCY_CONFLICT",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "family": {
+                    "type": "string",
+                    "enum": [
+                      "INCOME",
+                      "EXPENSE"
+                    ]
+                  },
+                  "kind": {
+                    "description": "Opcional: se deriva de la familia",
+                    "type": "string",
+                    "enum": [
+                      "EARNED_INCOME",
+                      "INCURRED_EXPENSE"
+                    ]
+                  },
+                  "categoryId": {
+                    "nullable": true,
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "concept": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "referenceId": {
+                    "nullable": true,
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "economicPeriod": {
+                    "description": "Período al que pertenece lo ganado/gastado (ej. sueldo de agosto)",
+                    "nullable": true,
+                    "type": "string",
+                    "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                  },
+                  "note": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 500
+                  },
+                  "economicComponents": {
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "direction": {
+                          "type": "string",
+                          "enum": [
+                            "INCOME",
+                            "EXPENSE"
+                          ]
+                        },
+                        "amount": {
+                          "type": "string",
+                          "pattern": "^\\d+(\\.\\d{1,8})?$"
+                        },
+                        "currency": {
+                          "type": "string",
+                          "pattern": "^[A-Z][A-Z0-9]{1,9}$"
+                        },
+                        "economicDate": {
+                          "nullable": true,
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "economicPeriod": {
+                          "nullable": true,
+                          "type": "string",
+                          "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                        }
+                      },
+                      "required": [
+                        "amount",
+                        "currency"
+                      ]
+                    }
+                  },
+                  "settlements": {
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "walletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "amount": {
+                          "type": "string",
+                          "pattern": "^\\d+(\\.\\d{1,8})?$"
+                        },
+                        "currency": {
+                          "type": "string",
+                          "pattern": "^[A-Z][A-Z0-9]{1,9}$"
+                        },
+                        "effectiveDate": {
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        }
+                      },
+                      "required": [
+                        "walletId",
+                        "amount",
+                        "currency",
+                        "effectiveDate"
+                      ]
+                    }
+                  },
+                  "recurrence": {
+                    "description": "Todavía no soportada (D-08): debe ser null u omitirse",
+                    "type": "string",
+                    "nullable": true,
+                    "enum": [
+                      null
+                    ]
+                  }
+                },
+                "required": [
+                  "family",
+                  "concept",
+                  "economicComponents",
+                  "settlements"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "family": {
+                      "type": "string",
+                      "enum": [
+                        "INCOME",
+                        "EXPENSE"
+                      ]
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "EARNED_INCOME",
+                        "INCURRED_EXPENSE"
+                      ]
+                    },
+                    "categoryId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "categoryName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "concept": {
+                      "type": "string"
+                    },
+                    "referenceId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "referenceName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "economicPeriod": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "CONFIRMED",
+                        "REVERSED"
+                      ]
+                    },
+                    "recordedAt": {
+                      "type": "string",
+                      "description": "Instante ISO 8601"
+                    },
+                    "economicComponents": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "direction": {
+                            "type": "string",
+                            "enum": [
+                              "INCOME",
+                              "EXPENSE"
+                            ]
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "economicDate": {
+                            "nullable": true,
+                            "description": "Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy)",
+                            "type": "string"
+                          },
+                          "economicPeriod": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "direction",
+                          "currency",
+                          "amount",
+                          "economicDate",
+                          "economicPeriod"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez"
+                    },
+                    "settlements": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "walletId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "walletName": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string",
+                            "description": "Magnitud positiva; el sentido lo da la familia"
+                          },
+                          "effectiveDate": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "walletId",
+                          "walletName",
+                          "currency",
+                          "amount",
+                          "effectiveDate"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja)"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "family",
+                    "kind",
+                    "categoryId",
+                    "categoryName",
+                    "concept",
+                    "referenceId",
+                    "referenceName",
+                    "economicPeriod",
+                    "note",
+                    "state",
+                    "recordedAt",
+                    "economicComponents",
+                    "settlements",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "IDEMPOTENCY_CONFLICT o solicitud en curso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "SETTLEMENT_MISMATCH, WALLET_CURRENCY_NOT_ALLOWED, CREDIT_NOT_VALID_FOR_SALARY_DESTINATION, INVALID_AMOUNT, CATEGORY_FAMILY_MISMATCH, …",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Gasto con tarjeta de crédito o recurrencia: fases posteriores",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/v1/operations/{id}": {
+      "get": {
+        "operationId": "OperationsController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "family": {
+                      "type": "string",
+                      "enum": [
+                        "INCOME",
+                        "EXPENSE"
+                      ]
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "EARNED_INCOME",
+                        "INCURRED_EXPENSE"
+                      ]
+                    },
+                    "categoryId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "categoryName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "concept": {
+                      "type": "string"
+                    },
+                    "referenceId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "referenceName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "economicPeriod": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "CONFIRMED",
+                        "REVERSED"
+                      ]
+                    },
+                    "recordedAt": {
+                      "type": "string",
+                      "description": "Instante ISO 8601"
+                    },
+                    "economicComponents": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "direction": {
+                            "type": "string",
+                            "enum": [
+                              "INCOME",
+                              "EXPENSE"
+                            ]
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "economicDate": {
+                            "nullable": true,
+                            "description": "Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy)",
+                            "type": "string"
+                          },
+                          "economicPeriod": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "direction",
+                          "currency",
+                          "amount",
+                          "economicDate",
+                          "economicPeriod"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez"
+                    },
+                    "settlements": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "walletId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "walletName": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string",
+                            "description": "Magnitud positiva; el sentido lo da la familia"
+                          },
+                          "effectiveDate": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "walletId",
+                          "walletName",
+                          "currency",
+                          "amount",
+                          "effectiveDate"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja)"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "family",
+                    "kind",
+                    "categoryId",
+                    "categoryName",
+                    "concept",
+                    "referenceId",
+                    "referenceName",
+                    "economicPeriod",
+                    "note",
+                    "state",
+                    "recordedAt",
+                    "economicComponents",
+                    "settlements",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "operations"
+        ]
+      },
+      "patch": {
+        "operationId": "OperationsController_patch",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "categoryId": {
+                    "nullable": true,
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "referenceId": {
+                    "description": "Asociar o quitar una referencia NO crea otro gasto ni toca la caja",
+                    "nullable": true,
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "concept": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "note": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 500
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "family": {
+                      "type": "string",
+                      "enum": [
+                        "INCOME",
+                        "EXPENSE"
+                      ]
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "EARNED_INCOME",
+                        "INCURRED_EXPENSE"
+                      ]
+                    },
+                    "categoryId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "categoryName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "concept": {
+                      "type": "string"
+                    },
+                    "referenceId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "referenceName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "economicPeriod": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "CONFIRMED",
+                        "REVERSED"
+                      ]
+                    },
+                    "recordedAt": {
+                      "type": "string",
+                      "description": "Instante ISO 8601"
+                    },
+                    "economicComponents": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "direction": {
+                            "type": "string",
+                            "enum": [
+                              "INCOME",
+                              "EXPENSE"
+                            ]
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "economicDate": {
+                            "nullable": true,
+                            "description": "Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy)",
+                            "type": "string"
+                          },
+                          "economicPeriod": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "direction",
+                          "currency",
+                          "amount",
+                          "economicDate",
+                          "economicPeriod"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez"
+                    },
+                    "settlements": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "walletId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "walletName": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string",
+                            "description": "Magnitud positiva; el sentido lo da la familia"
+                          },
+                          "effectiveDate": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "walletId",
+                          "walletName",
+                          "currency",
+                          "amount",
+                          "effectiveDate"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja)"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "family",
+                    "kind",
+                    "categoryId",
+                    "categoryName",
+                    "concept",
+                    "referenceId",
+                    "referenceName",
+                    "economicPeriod",
+                    "note",
+                    "state",
+                    "recordedAt",
+                    "economicComponents",
+                    "settlements",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONCURRENT_UPDATE u OPERATION_ALREADY_REVERSED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/v1/operations/{id}/reversal": {
+      "post": {
+        "operationId": "OperationsController_reverse",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Mismo key+contenido => misma respuesta sin duplicar; contenido distinto => 409 IDEMPOTENCY_CONFLICT",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "family": {
+                      "type": "string",
+                      "enum": [
+                        "INCOME",
+                        "EXPENSE"
+                      ]
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "EARNED_INCOME",
+                        "INCURRED_EXPENSE"
+                      ]
+                    },
+                    "categoryId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "categoryName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "concept": {
+                      "type": "string"
+                    },
+                    "referenceId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "referenceName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "economicPeriod": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "CONFIRMED",
+                        "REVERSED"
+                      ]
+                    },
+                    "recordedAt": {
+                      "type": "string",
+                      "description": "Instante ISO 8601"
+                    },
+                    "economicComponents": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "direction": {
+                            "type": "string",
+                            "enum": [
+                              "INCOME",
+                              "EXPENSE"
+                            ]
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "economicDate": {
+                            "nullable": true,
+                            "description": "Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy)",
+                            "type": "string"
+                          },
+                          "economicPeriod": {
+                            "nullable": true,
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "direction",
+                          "currency",
+                          "amount",
+                          "economicDate",
+                          "economicPeriod"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez"
+                    },
+                    "settlements": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "walletId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "walletName": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string",
+                            "description": "Magnitud positiva; el sentido lo da la familia"
+                          },
+                          "effectiveDate": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "walletId",
+                          "walletName",
+                          "currency",
+                          "amount",
+                          "effectiveDate"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja)"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "family",
+                    "kind",
+                    "categoryId",
+                    "categoryName",
+                    "concept",
+                    "referenceId",
+                    "referenceName",
+                    "economicPeriod",
+                    "note",
+                    "state",
+                    "recordedAt",
+                    "economicComponents",
+                    "settlements",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "OPERATION_ALREADY_REVERSED, IDEMPOTENCY_CONFLICT o solicitud en curso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "operations"
+        ]
+      }
+    },
     "/v1/me": {
       "get": {
         "operationId": "MeController_get",
@@ -559,11 +1954,16 @@
                                   "enum": [
                                     "unknown"
                                   ]
+                                },
+                                "observedDelta": {
+                                  "type": "string",
+                                  "description": "Variación neta REGISTRADA (suma de movimientos). No es el saldo disponible"
                                 }
                               },
                               "required": [
                                 "currency",
-                                "status"
+                                "status",
+                                "observedDelta"
                               ],
                               "additionalProperties": false
                             },
@@ -795,11 +2195,16 @@
                             "enum": [
                               "unknown"
                             ]
+                          },
+                          "observedDelta": {
+                            "type": "string",
+                            "description": "Variación neta REGISTRADA (suma de movimientos). No es el saldo disponible"
                           }
                         },
                         "required": [
                           "currency",
-                          "status"
+                          "status",
+                          "observedDelta"
                         ],
                         "additionalProperties": false
                       },
@@ -996,11 +2401,16 @@
                             "enum": [
                               "unknown"
                             ]
+                          },
+                          "observedDelta": {
+                            "type": "string",
+                            "description": "Variación neta REGISTRADA (suma de movimientos). No es el saldo disponible"
                           }
                         },
                         "required": [
                           "currency",
-                          "status"
+                          "status",
+                          "observedDelta"
                         ],
                         "additionalProperties": false
                       },
@@ -1211,11 +2621,16 @@
                             "enum": [
                               "unknown"
                             ]
+                          },
+                          "observedDelta": {
+                            "type": "string",
+                            "description": "Variación neta REGISTRADA (suma de movimientos). No es el saldo disponible"
                           }
                         },
                         "required": [
                           "currency",
-                          "status"
+                          "status",
+                          "observedDelta"
                         ],
                         "additionalProperties": false
                       },
@@ -2611,7 +4026,13 @@
               "CURRENCY_NOT_IN_CATALOG",
               "CURRENCY_NOT_ENABLED",
               "INVALID_CATEGORY_PARENT",
-              "BANK_ARCHIVED"
+              "BANK_ARCHIVED",
+              "SETTLEMENT_MISMATCH",
+              "CATEGORY_FAMILY_MISMATCH",
+              "CATEGORY_ARCHIVED",
+              "WALLET_ARCHIVED",
+              "OPERATION_ALREADY_REVERSED",
+              "INVALID_AMOUNT"
             ]
           },
           "message": {
