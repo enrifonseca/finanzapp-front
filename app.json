@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Finanzas Personales",
+    "slug": "finanzapp-front",
+    "scheme": "finanzapp",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "web": { "bundler": "metro", "output": "single" },
+    "plugins": [["expo-router", { "root": "app" }], "expo-status-bar", "expo-font"],
+    "experiments": { "typedRoutes": false }
+  }
+}
