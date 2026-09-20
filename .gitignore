@@ -1,0 +1,20 @@
+node_modules/
+.expo/
+dist/
+web-build/
+coverage/
+*.log
+.DS_Store
+.idea/
+.vscode/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# Secretos y entorno: nunca commitear valores reales
+.env
+.env.*
+!.env.example
