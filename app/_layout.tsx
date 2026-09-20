@@ -1,17 +1,39 @@
 import { Stack } from 'expo-router';
-import { useSession } from '@/core-react';
+import { useEffect } from 'react';
+import { useMe, useOnboarding, useSession } from '@/core-react';
 import { AppProviders } from '@/kernel';
-import { LoadingScreen } from '@/layout';
+import { ErrorScreen, LoadingScreen } from '@/layout';
 
+/** Sesión + primer uso: sin sesión solo /login; con sesión pero sin billeteras (o dentro del asistente) solo /onboarding. */
 function RootNavigator() {
-  const { status } = useSession();
-  if (status === 'loading') return <LoadingScreen />;
+  const { status, signOut } = useSession();
   const signedIn = status === 'signedIn';
-  // Las rutas protegidas no existen para quien no corresponde: sin sesión solo se llega a /login.
+  const me = useMe();
+  const onboarding = useOnboarding();
+  const completed = me.data?.onboardingCompleted;
+
+  // Al detectar primer uso pendiente se "engancha" el asistente para poder ofrecer
+  // "Crear otra / Ir a Home" aunque la primera billetera ya cuente como primer uso completo.
+  useEffect(() => {
+    if (signedIn && completed === false && !onboarding.active) onboarding.start();
+  }, [signedIn, completed, onboarding]);
+
+  if (status === 'loading') return <LoadingScreen />;
+  if (signedIn && me.isPending) return <LoadingScreen />;
+  if (signedIn && me.isError) {
+    return <ErrorScreen message="No pudimos cargar tu cuenta." onRetry={() => void me.refetch()} onSecondary={() => void signOut()} secondaryLabel="Cerrar sesión" />;
+  }
+
+  const needsOnboarding = signedIn && (completed === false || onboarding.active);
+  const inApp = signedIn && !needsOnboarding;
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={signedIn}>
+      <Stack.Protected guard={inApp}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="wallet-new" />
+      </Stack.Protected>
+      <Stack.Protected guard={needsOnboarding}>
+        <Stack.Screen name="onboarding" />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="login" />

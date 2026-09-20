@@ -1,9 +1,12 @@
-import { EmptyState, ScreenContainer } from '@/layout';
+import { useRouter } from 'expo-router';
+import { ScreenContainer } from '@/layout';
+import { WalletsList } from './WalletsList';
 
 export function WalletsScreen() {
+  const router = useRouter();
   return (
     <ScreenContainer>
-      <EmptyState title="Billeteras" description="Esta sección se construye en la Fase 2." />
+      <WalletsList onCreate={() => router.push('/wallet-new')} />
     </ScreenContainer>
   );
 }

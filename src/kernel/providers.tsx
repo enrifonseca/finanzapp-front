@@ -4,7 +4,7 @@ import { useColorScheme } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
-  ApiProvider, AuthProvider, RuntimeConfigProvider, SessionManager, createApiClient, createQueryClient, secureTokenStorage, type TokenStorage,
+  ApiProvider, AuthProvider, OnboardingProvider, RuntimeConfigProvider, SessionManager, createApiClient, createQueryClient, secureTokenStorage, type TokenStorage,
 } from '@/core-react';
 import { darkTheme, lightTheme } from '@/ui-system';
 import { API_BASE_URL, AUTH_SANDBOX } from './config';
@@ -29,7 +29,9 @@ export function AppProviders({ children, baseUrl = API_BASE_URL, storage = secur
         <QueryClientProvider client={queryClient}>
           <RuntimeConfigProvider value={runtime}>
             <ApiProvider value={api}>
-              <AuthProvider manager={manager}>{children}</AuthProvider>
+              <AuthProvider manager={manager}>
+                <OnboardingProvider>{children}</OnboardingProvider>
+              </AuthProvider>
             </ApiProvider>
           </RuntimeConfigProvider>
         </QueryClientProvider>
