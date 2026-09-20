@@ -1,29 +1,26 @@
 # Estado del proyecto
 
-- **Fase actual:** Fase 2 (primer uso y billeteras) — frontend implementado, **pendiente de tu revisión**
-- **Rama:** `feature/fase2-billeteras-frontend` (apilada sobre fase1 y fase0; ninguna mergeada ni pusheada)
-- **Última tarea completada:** asistente de primer uso, formulario de billetera con creación contextual de banco y moneda, listados en Inicio y Billeteras
-- **Próximo paso:** Fase 3 (movimientos inmediatos), sujeta a las decisiones pendientes de abajo.
+- **Fase actual:** Fase 3 (movimientos inmediatos) — frontend implementado, **pendiente de tu revisión**
+- **Rama:** `feature/fase3-movimientos-frontend` (apilada: fase0 → fase1 → fase2 → fase3; ninguna mergeada)
+- **Última tarea completada:** registro de ingresos/egresos con creación contextual anidada, historial, detalle con reversión, Home con últimos 10 y habituales
+- **Próximo paso:** revisión. Las fases 4–10 quedan **bloqueadas por decisiones tuyas** (ver `finanzapp-back/docs/PREGUNTAS-ABIERTAS.md`).
 
-## Qué quedó hecho (FLUJO-001 completo)
-- Sin billeteras el usuario solo puede llegar a `/onboarding` (guard de rutas); con billeteras va a Home y **no** vuelve a pedir el alta tras recargar.
-- Formulario: nombre, tipo (efectivo/débito/crédito), monedas, banco (débito/crédito), ubicación (efectivo), y **elección explícita fijo/variable** en crédito (sin valor por defecto; no se piden ni inventan fechas).
-- **Creación contextual sin perder el borrador:** el banco se crea en el selector y las monedas se habilitan en un diálogo, sobre la misma pantalla; el borrador vive en el formulario.
-- Tras cada alta: "Ir a Home" / "Crear otra billetera". Loop repetible.
-- `Idempotency-Key` estable por contenido: reintentar tras un corte de red reutiliza la key (no duplica); si cambia el contenido usa otra.
-- Saldos: "sin saldo inicial" (unknown), nunca 0. Crédito: "períodos sin configurar".
-- Errores del servidor mapeados al campo; estados de carga/error/vacío en listas.
-- 46 tests Jest + e2e en Chrome real (login → primer uso → crédito con banco en contexto → Home → recarga → nueva billetera).
-- Bugs reales hallados por el e2e y corregidos: `useMe` sin sesión daba 401 cacheado; `onboarding/*` no era una pantalla protegible; diálogos aceptaban toques mientras animaban su cierre.
+## Qué quedó hecho (FLUJO-002 y FLUJO-003, hechos inmediatos)
+- "Nuevo movimiento" (botón visible en Inicio y Movimientos) siempre empieza por Ingreso/Egreso; recién después categoría, concepto y referencia opcional.
+- **Creación contextual sin perder el borrador**, incluso anidada: categoría (familia ya elegida), referencia (nombre + código tal cual, con tipo) y billetera (que a su vez crea banco/moneda). Caso E2E-02 verificado en navegador: cobrar USD sin billetera USD → se crea "USD EFT" dentro del registro y vuelve con las líneas previas intactas.
+- Líneas monto–moneda–billetera; total por moneda con aritmética decimal exacta (bigint); una operación de N monedas = N sumas, nunca cruzadas. Sueldo multimoneda = UNA operación.
+- Gasto: fecha económica explícita. Ingreso: período opcional; la fecha "ganado" queda desconocida (no se rellena con hoy).
+- Idempotency-Key estable por contenido (reintento tras corte de red no duplica).
+- Home: últimos 10 (una fila por operación lógica), habituales SOLO a partir de operaciones reales (vacío al inicio). Movimientos: historial con cursor. Detalle: separa "Gastado/Ganado (economía)" de "Pagado/Cobrado (caja)"; asociar referencia después no crea otro gasto ni toca la caja; revertir con confirmación.
+- Billeteras muestran "sin saldo inicial · movimientos registrados: X" (variación registrada, nunca un saldo).
+- 71 tests Jest + e2e en Chrome real (10 pasos, incluye E2E-02/03/04 y reversión).
+- Bug real hallado por los tests y corregido: los diálogos (Portal) se renderizaban fuera de los providers de API; ahora `PaperProvider` va dentro.
 
 ## Mockeado / pendiente / sin conectar
-- Login Google/Apple sigue deshabilitado (necesita credenciales OAuth tuyas).
-- No hay pantalla de detalle de billetera, edición ni archivo (endpoints `PATCH /v1/wallets/{id}` listos en el back, sin UI).
-- Sin saldo inicial (no hay `opening-balances`): ver D-02 abajo.
+- Sin cobro/pago parcial ni pendiente (derechos/obligaciones): D-15. Sin gasto con tarjeta de crédito (Fase 4), transferencias/FX, recurrencia (D-08).
+- La UI no edita monto/moneda/fecha de una operación (solo etiquetas y reversión), por lo que dice la spec ("requieren definición adicional").
+- Sin filtros en el historial ni búsqueda (la API soporta familia/categoría/billetera/referencia/moneda).
 - No probado en emulador/dispositivo.
 
-## Decisiones consultadas / abiertas en esta fase
-- **D-03 (crédito, reglas de cierre por emisor): NO resuelta.** Solo se guarda la elección fijo/variable; no se calculan fechas ni se guardan día de cierre ni regla de vencimiento.
-- **D-02 (saldo inicial: ¿saldo negativo/sobregiro?): NO resuelta.** No se implementó `opening-balances` para no decidir esa política.
-- **Sugerencia de nombre y moneda predeterminada (FLUJO-001 §9): NO decidida.** El nombre no se prellena; solo se sugiere la moneda preferida del usuario si ya la eligió (nunca se asume ARS).
-- **Editar monedas de una billetera ya usada (FLUJO-001 §9): NO decidida.** El back solo permite *agregar* monedas; no existe quitar.
+## Decisiones de docs/spec/11 consultadas
+Ver `finanzapp-back/docs/PREGUNTAS-ABIERTAS.md` (D-01, D-02, D-06, D-08, D-15 y anteriores). Ninguna resuelta por mí.
