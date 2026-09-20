@@ -36,6 +36,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/exchange": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_exchange"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_refresh"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/me": {
         parameters: {
             query?: never;
@@ -49,7 +97,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        patch: operations["MeController_patch"];
         trace?: never;
     };
     "/v1/wallets": {
@@ -68,6 +116,118 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/currencies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CurrenciesController_list"];
+        put?: never;
+        post: operations["CurrenciesController_enable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/banks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["BanksController_list"];
+        put?: never;
+        post: operations["BanksController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/banks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["BanksController_patch"];
+        trace?: never;
+    };
+    "/v1/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CategoriesController_list"];
+        put?: never;
+        post: operations["CategoriesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["CategoriesController_patch"];
+        trace?: never;
+    };
+    "/v1/references": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReferencesController_list"];
+        put?: never;
+        post: operations["ReferencesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/references/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["ReferencesController_patch"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -78,7 +238,7 @@ export interface components {
         };
         ErrorResponseDto: {
             /** @enum {string} */
-            code: "BAD_REQUEST" | "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND_OR_NOT_OWNED" | "IDEMPOTENCY_CONFLICT" | "CONCURRENT_UPDATE" | "RATE_LIMITED" | "NOT_IMPLEMENTED" | "INTERNAL_ERROR" | "WALLET_CURRENCY_NOT_ALLOWED" | "CREDIT_NOT_VALID_FOR_SALARY_DESTINATION" | "BANK_REQUIRED" | "UNKNOWN_BILLING_PERIOD" | "INSUFFICIENT_KNOWN_BALANCE" | "DUE_OVERALLOCATED" | "FX_RATE_REQUIRED" | "LOAN_RECONCILIATION_REQUIRED" | "FORECAST_NOT_ACTUAL" | "BUDGET_CURRENCY_MISMATCH";
+            code: "BAD_REQUEST" | "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND_OR_NOT_OWNED" | "IDEMPOTENCY_CONFLICT" | "CONCURRENT_UPDATE" | "RATE_LIMITED" | "NOT_IMPLEMENTED" | "INTERNAL_ERROR" | "WALLET_CURRENCY_NOT_ALLOWED" | "CREDIT_NOT_VALID_FOR_SALARY_DESTINATION" | "BANK_REQUIRED" | "UNKNOWN_BILLING_PERIOD" | "INSUFFICIENT_KNOWN_BALANCE" | "DUE_OVERALLOCATED" | "FX_RATE_REQUIRED" | "LOAN_RECONCILIATION_REQUIRED" | "FORECAST_NOT_ACTUAL" | "BUDGET_CURRENCY_MISMATCH" | "CURRENCY_NOT_IN_CATALOG" | "CURRENCY_NOT_ENABLED" | "INVALID_CATEGORY_PARENT";
             message: string;
             fieldErrors?: {
                 [key: string]: string;
@@ -86,18 +246,6 @@ export interface components {
             /** @description Eco de X-Request-Id (o generado por el servidor) */
             requestId: string;
             retryable?: boolean;
-        };
-        MeDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example es-AR */
-            locale: string;
-            /** @example America/Argentina/Buenos_Aires */
-            timezone: string;
-            /** @description Código de moneda preferida; null si no se eligió */
-            preferredCurrencyCode: string | null;
-            /** @description Calculado por billeteras activas (docs/spec/06 §2) */
-            onboardingCompleted: boolean;
         };
         WalletDto: {
             /** Format: uuid */
@@ -177,6 +325,122 @@ export interface operations {
             };
         };
     };
+    AuthController_exchange: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    provider: "GOOGLE" | "APPLE";
+                    idToken: string;
+                    nonce?: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        accessToken: string;
+                        refreshToken: string;
+                        /** @enum {string} */
+                        tokenType: "Bearer";
+                        /** @description Segundos de vida del accessToken */
+                        expiresIn: number;
+                        isNewUser?: boolean;
+                    };
+                };
+            };
+            /** @description ID token inválido (firma, iss, aud, exp o nonce) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Proveedor no configurado en el servidor */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AuthController_refresh: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    refreshToken: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        accessToken: string;
+                        refreshToken: string;
+                        /** @enum {string} */
+                        tokenType: "Bearer";
+                        /** @description Segundos de vida del accessToken */
+                        expiresIn: number;
+                        isNewUser?: boolean;
+                    };
+                };
+            };
+            /** @description Refresh inválido, vencido o reutilizado (la sesión se revoca) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    AuthController_logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
     MeController_get: {
         parameters: {
             query?: never;
@@ -191,11 +455,75 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MeDto"];
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @description Ej. es-AR */
+                        locale: string;
+                        /** @description Zona IANA, ej. America/Argentina/Buenos_Aires */
+                        timezone: string;
+                        preferredCurrencyCode: string | null;
+                        /** @description Calculado: hay al menos una billetera activa con moneda habilitada */
+                        onboardingCompleted: boolean;
+                    };
                 };
             };
-            /** @description Aún sin implementar (Fase 1) */
-            501: {
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    MeController_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    locale?: string;
+                    timezone?: string;
+                    preferredCurrencyCode?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @description Ej. es-AR */
+                        locale: string;
+                        /** @description Zona IANA, ej. America/Argentina/Buenos_Aires */
+                        timezone: string;
+                        preferredCurrencyCode: string | null;
+                        /** @description Calculado: hay al menos una billetera activa con moneda habilitada */
+                        onboardingCompleted: boolean;
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -220,6 +548,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WalletListDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
                 };
             };
             /** @description Aún sin implementar (Fase 2) */
@@ -253,8 +590,589 @@ export interface operations {
                     "application/json": components["schemas"]["WalletDto"];
                 };
             };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
             /** @description Aún sin implementar (Fase 2) */
             501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CurrenciesController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: {
+                            code: string;
+                            displayName: string;
+                            minorUnitDigits: number;
+                            /** @description Habilitada para este usuario */
+                            enabled: boolean;
+                            isDefault: boolean;
+                        }[];
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CurrenciesController_enable: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    code: string;
+                    /** @default false */
+                    makeDefault?: boolean;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        code: string;
+                        displayName: string;
+                        minorUnitDigits: number;
+                        /** @description Habilitada para este usuario */
+                        enabled: boolean;
+                        isDefault: boolean;
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    BanksController_list: {
+        parameters: {
+            query?: {
+                /** @description Cursor devuelto en nextCursor */
+                cursor?: string;
+                /** @description Máximo 100 (25 por defecto) */
+                limit?: number;
+                includeArchived?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            countryCode: string | null;
+                            active: boolean;
+                        }[];
+                        nextCursor: string | null;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    BanksController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name: string;
+                    countryCode?: string | null;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        name: string;
+                        countryCode: string | null;
+                        active: boolean;
+                        /** @description Bancos propios con el mismo nombre normalizado: solo sugerencia, el alta se hizo igual */
+                        possibleDuplicateIds: string[];
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    BanksController_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name?: string;
+                    countryCode?: string | null;
+                    /** @description false archiva; los catálogos nunca se borran */
+                    active?: boolean;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        name: string;
+                        countryCode: string | null;
+                        active: boolean;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_list: {
+        parameters: {
+            query?: {
+                /** @description Cursor devuelto en nextCursor */
+                cursor?: string;
+                /** @description Máximo 100 (25 por defecto) */
+                limit?: number;
+                includeArchived?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: {
+                            /** Format: uuid */
+                            id: string;
+                            /** @enum {string} */
+                            family: "INCOME" | "EXPENSE";
+                            name: string;
+                            /** Format: uuid */
+                            parentId: string | null;
+                            color: string | null;
+                            icon: string | null;
+                            active: boolean;
+                        }[];
+                        nextCursor: string | null;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    family: "INCOME" | "EXPENSE";
+                    name: string;
+                    /** Format: uuid */
+                    parentId?: string | null;
+                    color?: string | null;
+                    icon?: string | null;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        family: "INCOME" | "EXPENSE";
+                        name: string;
+                        /** Format: uuid */
+                        parentId: string | null;
+                        color: string | null;
+                        icon: string | null;
+                        active: boolean;
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name?: string;
+                    color?: string | null;
+                    icon?: string | null;
+                    active?: boolean;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        family: "INCOME" | "EXPENSE";
+                        name: string;
+                        /** Format: uuid */
+                        parentId: string | null;
+                        color: string | null;
+                        icon: string | null;
+                        active: boolean;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    ReferencesController_list: {
+        parameters: {
+            query?: {
+                /** @description Cursor devuelto en nextCursor */
+                cursor?: string;
+                /** @description Máximo 100 (25 por defecto) */
+                limit?: number;
+                includeArchived?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: {
+                            /** Format: uuid */
+                            id: string;
+                            /** @enum {string} */
+                            kind: "ACCOUNT" | "CLIENT" | "PROPERTY" | "CONTRACT" | "SERVICE" | "OTHER";
+                            displayName: string;
+                            /** @description Texto tal cual (ceros a la izquierda y caracteres ocultos incluidos) */
+                            externalCodeText: string | null;
+                            description: string | null;
+                            active: boolean;
+                        }[];
+                        nextCursor: string | null;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    ReferencesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    kind: "ACCOUNT" | "CLIENT" | "PROPERTY" | "CONTRACT" | "SERVICE" | "OTHER";
+                    displayName: string;
+                    externalCodeText?: string | null;
+                    description?: string | null;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        kind: "ACCOUNT" | "CLIENT" | "PROPERTY" | "CONTRACT" | "SERVICE" | "OTHER";
+                        displayName: string;
+                        /** @description Texto tal cual (ceros a la izquierda y caracteres ocultos incluidos) */
+                        externalCodeText: string | null;
+                        description: string | null;
+                        active: boolean;
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    ReferencesController_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    displayName?: string;
+                    externalCodeText?: string | null;
+                    description?: string | null;
+                    active?: boolean;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        kind: "ACCOUNT" | "CLIENT" | "PROPERTY" | "CONTRACT" | "SERVICE" | "OTHER";
+                        displayName: string;
+                        /** @description Texto tal cual (ceros a la izquierda y caracteres ocultos incluidos) */
+                        externalCodeText: string | null;
+                        description: string | null;
+                        active: boolean;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
