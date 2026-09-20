@@ -7,8 +7,23 @@
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "web": { "bundler": "metro", "output": "single" },
-    "plugins": [["expo-router", { "root": "app" }], "expo-status-bar", "expo-font"],
-    "experiments": { "typedRoutes": false }
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "root": "app"
+        }
+      ],
+      "expo-status-bar",
+      "expo-font",
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
   }
 }
