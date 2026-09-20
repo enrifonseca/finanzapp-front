@@ -1,0 +1,344 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_live",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "HealthController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "MeController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Aún sin implementar (Fase 1)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "identity"
+        ]
+      }
+    },
+    "/v1/wallets": {
+      "get": {
+        "operationId": "WalletsController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletListDto"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Aún sin implementar (Fase 2)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "wallets"
+        ]
+      },
+      "post": {
+        "operationId": "WalletsController_create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Mismo key+payload devuelve el resultado previo; payload distinto => 409 IDEMPOTENCY_CONFLICT",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletDto"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Aún sin implementar (Fase 2)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "wallets"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Finanzas Personales API",
+    "description": "Contrato HTTP v1. Importes como strings decimales con moneda explícita; unknown ≠ 0.",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "HealthDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "BAD_REQUEST",
+              "UNAUTHENTICATED",
+              "FORBIDDEN",
+              "NOT_FOUND_OR_NOT_OWNED",
+              "IDEMPOTENCY_CONFLICT",
+              "CONCURRENT_UPDATE",
+              "RATE_LIMITED",
+              "NOT_IMPLEMENTED",
+              "INTERNAL_ERROR",
+              "WALLET_CURRENCY_NOT_ALLOWED",
+              "CREDIT_NOT_VALID_FOR_SALARY_DESTINATION",
+              "BANK_REQUIRED",
+              "UNKNOWN_BILLING_PERIOD",
+              "INSUFFICIENT_KNOWN_BALANCE",
+              "DUE_OVERALLOCATED",
+              "FX_RATE_REQUIRED",
+              "LOAN_RECONCILIATION_REQUIRED",
+              "FORECAST_NOT_ACTUAL",
+              "BUDGET_CURRENCY_MISMATCH"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "fieldErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "requestId": {
+            "type": "string",
+            "description": "Eco de X-Request-Id (o generado por el servidor)"
+          },
+          "retryable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "requestId"
+        ]
+      },
+      "MeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "locale": {
+            "type": "string",
+            "example": "es-AR"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "America/Argentina/Buenos_Aires"
+          },
+          "preferredCurrencyCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Código de moneda preferida; null si no se eligió"
+          },
+          "onboardingCompleted": {
+            "type": "boolean",
+            "description": "Calculado por billeteras activas (docs/spec/06 §2)"
+          }
+        },
+        "required": [
+          "id",
+          "locale",
+          "timezone",
+          "preferredCurrencyCode",
+          "onboardingCompleted"
+        ]
+      },
+      "WalletDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CASH",
+              "DEBIT",
+              "CREDIT"
+            ]
+          },
+          "bankId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "null para CASH; obligatorio en DEBIT/CREDIT"
+          },
+          "locationText": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "ARCHIVED"
+            ]
+          },
+          "currencies": {
+            "description": "Monedas habilitadas (mínimo una para activar)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "version": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "bankId",
+          "locationText",
+          "status",
+          "currencies",
+          "version"
+        ]
+      },
+      "WalletListDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WalletDto"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true,
+            "description": "Cursor estable para la página siguiente"
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      }
+    }
+  }
+}
