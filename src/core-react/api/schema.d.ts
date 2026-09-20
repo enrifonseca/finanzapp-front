@@ -116,6 +116,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/wallets/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["WalletsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["WalletsController_patch"];
+        trace?: never;
+    };
     "/v1/currencies": {
         parameters: {
             query?: never;
@@ -238,7 +254,7 @@ export interface components {
         };
         ErrorResponseDto: {
             /** @enum {string} */
-            code: "BAD_REQUEST" | "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND_OR_NOT_OWNED" | "IDEMPOTENCY_CONFLICT" | "CONCURRENT_UPDATE" | "RATE_LIMITED" | "NOT_IMPLEMENTED" | "INTERNAL_ERROR" | "WALLET_CURRENCY_NOT_ALLOWED" | "CREDIT_NOT_VALID_FOR_SALARY_DESTINATION" | "BANK_REQUIRED" | "UNKNOWN_BILLING_PERIOD" | "INSUFFICIENT_KNOWN_BALANCE" | "DUE_OVERALLOCATED" | "FX_RATE_REQUIRED" | "LOAN_RECONCILIATION_REQUIRED" | "FORECAST_NOT_ACTUAL" | "BUDGET_CURRENCY_MISMATCH" | "CURRENCY_NOT_IN_CATALOG" | "CURRENCY_NOT_ENABLED" | "INVALID_CATEGORY_PARENT";
+            code: "BAD_REQUEST" | "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND_OR_NOT_OWNED" | "IDEMPOTENCY_CONFLICT" | "CONCURRENT_UPDATE" | "RATE_LIMITED" | "NOT_IMPLEMENTED" | "INTERNAL_ERROR" | "WALLET_CURRENCY_NOT_ALLOWED" | "CREDIT_NOT_VALID_FOR_SALARY_DESTINATION" | "BANK_REQUIRED" | "UNKNOWN_BILLING_PERIOD" | "INSUFFICIENT_KNOWN_BALANCE" | "DUE_OVERALLOCATED" | "FX_RATE_REQUIRED" | "LOAN_RECONCILIATION_REQUIRED" | "FORECAST_NOT_ACTUAL" | "BUDGET_CURRENCY_MISMATCH" | "CURRENCY_NOT_IN_CATALOG" | "CURRENCY_NOT_ENABLED" | "INVALID_CATEGORY_PARENT" | "BANK_ARCHIVED";
             message: string;
             fieldErrors?: {
                 [key: string]: string;
@@ -246,29 +262,6 @@ export interface components {
             /** @description Eco de X-Request-Id (o generado por el servidor) */
             requestId: string;
             retryable?: boolean;
-        };
-        WalletDto: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-            /** @enum {string} */
-            type: "CASH" | "DEBIT" | "CREDIT";
-            /**
-             * Format: uuid
-             * @description null para CASH; obligatorio en DEBIT/CREDIT
-             */
-            bankId: string | null;
-            locationText: string | null;
-            /** @enum {string} */
-            status: "ACTIVE" | "ARCHIVED";
-            /** @description Monedas habilitadas (mínimo una para activar) */
-            currencies: string[];
-            version: number;
-        };
-        WalletListDto: {
-            items: components["schemas"]["WalletDto"][];
-            /** @description Cursor estable para la página siguiente */
-            nextCursor: string | null;
         };
     };
     responses: never;
@@ -535,7 +528,13 @@ export interface operations {
     };
     WalletsController_list: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Cursor devuelto en nextCursor */
+                cursor?: string;
+                /** @description Máximo 100 (25 por defecto) */
+                limit?: number;
+                includeArchived?: boolean;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -547,20 +546,46 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["WalletListDto"];
+                    "application/json": {
+                        items: {
+                            /** Format: uuid */
+                            id: string;
+                            name: string;
+                            /** @enum {string} */
+                            type: "CASH" | "DEBIT" | "CREDIT";
+                            /**
+                             * Format: uuid
+                             * @description null para CASH; obligatorio en DEBIT/CREDIT
+                             */
+                            bankId: string | null;
+                            bankName: string | null;
+                            /** @description Solo efectivo */
+                            locationText: string | null;
+                            /** @enum {string} */
+                            status: "ACTIVE" | "ARCHIVED";
+                            /** @description Monedas habilitadas de la billetera */
+                            currencies: string[];
+                            /** @description Solo crédito. PARTIAL = períodos aún sin configurar; nunca se inventan fechas */
+                            creditProfile: {
+                                /** @enum {string} */
+                                billingMode: "FIXED_PATTERN" | "VARIABLE_PER_PERIOD";
+                                /** @enum {string} */
+                                setupStatus: "PARTIAL" | "COMPLETE";
+                            } | null;
+                            /** @description Saldo por moneda. "unknown" (≠ 0) mientras no exista saldo inicial verificado */
+                            balances: {
+                                currency: string;
+                                /** @enum {string} */
+                                status: "unknown";
+                            }[];
+                            version: number;
+                        }[];
+                        nextCursor: string | null;
+                    };
                 };
             };
             /** @description Sin sesión válida */
             401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponseDto"];
-                };
-            };
-            /** @description Aún sin implementar (Fase 2) */
-            501: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -574,20 +599,77 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                /** @description Mismo key+payload devuelve el resultado previo; payload distinto => 409 IDEMPOTENCY_CONFLICT */
+                /** @description Mismo key+contenido => misma respuesta sin duplicar; contenido distinto => 409 IDEMPOTENCY_CONFLICT */
                 "Idempotency-Key": string;
             };
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": {
+                    name: string;
+                    /** @enum {string} */
+                    type: "CASH" | "DEBIT" | "CREDIT";
+                    /** Format: uuid */
+                    bankId?: string;
+                    locationText?: string;
+                    currencies: string[];
+                    /** @description Obligatorio en CREDIT: elección explícita fijo/variable */
+                    creditProfile?: {
+                        /** @enum {string} */
+                        billingMode: "FIXED_PATTERN" | "VARIABLE_PER_PERIOD";
+                    };
+                };
+            };
+        };
         responses: {
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["WalletDto"];
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        name: string;
+                        /** @enum {string} */
+                        type: "CASH" | "DEBIT" | "CREDIT";
+                        /**
+                         * Format: uuid
+                         * @description null para CASH; obligatorio en DEBIT/CREDIT
+                         */
+                        bankId: string | null;
+                        bankName: string | null;
+                        /** @description Solo efectivo */
+                        locationText: string | null;
+                        /** @enum {string} */
+                        status: "ACTIVE" | "ARCHIVED";
+                        /** @description Monedas habilitadas de la billetera */
+                        currencies: string[];
+                        /** @description Solo crédito. PARTIAL = períodos aún sin configurar; nunca se inventan fechas */
+                        creditProfile: {
+                            /** @enum {string} */
+                            billingMode: "FIXED_PATTERN" | "VARIABLE_PER_PERIOD";
+                            /** @enum {string} */
+                            setupStatus: "PARTIAL" | "COMPLETE";
+                        } | null;
+                        /** @description Saldo por moneda. "unknown" (≠ 0) mientras no exista saldo inicial verificado */
+                        balances: {
+                            currency: string;
+                            /** @enum {string} */
+                            status: "unknown";
+                        }[];
+                        version: number;
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
                 };
             };
             /** @description Sin sesión válida */
@@ -599,8 +681,202 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponseDto"];
                 };
             };
-            /** @description Aún sin implementar (Fase 2) */
-            501: {
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description IDEMPOTENCY_CONFLICT o solicitud en curso */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description BANK_REQUIRED, BANK_ARCHIVED o WALLET_CURRENCY_NOT_ALLOWED */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    WalletsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        name: string;
+                        /** @enum {string} */
+                        type: "CASH" | "DEBIT" | "CREDIT";
+                        /**
+                         * Format: uuid
+                         * @description null para CASH; obligatorio en DEBIT/CREDIT
+                         */
+                        bankId: string | null;
+                        bankName: string | null;
+                        /** @description Solo efectivo */
+                        locationText: string | null;
+                        /** @enum {string} */
+                        status: "ACTIVE" | "ARCHIVED";
+                        /** @description Monedas habilitadas de la billetera */
+                        currencies: string[];
+                        /** @description Solo crédito. PARTIAL = períodos aún sin configurar; nunca se inventan fechas */
+                        creditProfile: {
+                            /** @enum {string} */
+                            billingMode: "FIXED_PATTERN" | "VARIABLE_PER_PERIOD";
+                            /** @enum {string} */
+                            setupStatus: "PARTIAL" | "COMPLETE";
+                        } | null;
+                        /** @description Saldo por moneda. "unknown" (≠ 0) mientras no exista saldo inicial verificado */
+                        balances: {
+                            currency: string;
+                            /** @enum {string} */
+                            status: "unknown";
+                        }[];
+                        version: number;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    WalletsController_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name?: string;
+                    locationText?: string | null;
+                    /**
+                     * @description ARCHIVED archiva; nunca se borra
+                     * @enum {string}
+                     */
+                    status?: "ACTIVE" | "ARCHIVED";
+                    /** @description Solo agregar monedas; quitar está pendiente de política */
+                    addCurrencies?: string[];
+                    /** @description Control optimista: si no coincide => 409 CONCURRENT_UPDATE */
+                    expectedVersion?: number;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        name: string;
+                        /** @enum {string} */
+                        type: "CASH" | "DEBIT" | "CREDIT";
+                        /**
+                         * Format: uuid
+                         * @description null para CASH; obligatorio en DEBIT/CREDIT
+                         */
+                        bankId: string | null;
+                        bankName: string | null;
+                        /** @description Solo efectivo */
+                        locationText: string | null;
+                        /** @enum {string} */
+                        status: "ACTIVE" | "ARCHIVED";
+                        /** @description Monedas habilitadas de la billetera */
+                        currencies: string[];
+                        /** @description Solo crédito. PARTIAL = períodos aún sin configurar; nunca se inventan fechas */
+                        creditProfile: {
+                            /** @enum {string} */
+                            billingMode: "FIXED_PATTERN" | "VARIABLE_PER_PERIOD";
+                            /** @enum {string} */
+                            setupStatus: "PARTIAL" | "COMPLETE";
+                        } | null;
+                        /** @description Saldo por moneda. "unknown" (≠ 0) mientras no exista saldo inicial verificado */
+                        balances: {
+                            currency: string;
+                            /** @enum {string} */
+                            status: "unknown";
+                        }[];
+                        version: number;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description CONCURRENT_UPDATE */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description WALLET_CURRENCY_NOT_ALLOWED */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
