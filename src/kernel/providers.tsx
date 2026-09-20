@@ -23,19 +23,21 @@ export function AppProviders({ children, baseUrl = API_BASE_URL, storage = secur
   const manager = useMemo(() => new SessionManager(baseUrl, storage), [baseUrl, storage]);
   const api = useMemo(() => ({ client: createApiClient(baseUrl, manager), baseUrl }), [baseUrl, manager]);
   const runtime = useMemo(() => ({ authSandbox }), [authSandbox]);
+  // OJO con el orden: el contenido de un <Portal> (diálogos) se renderiza bajo PaperProvider, así que
+  // PaperProvider debe ir DENTRO de los providers de datos/sesión para que los diálogos puedan usar hooks de API.
   return (
     <SafeAreaProvider>
-      <PaperProvider theme={scheme === 'dark' ? darkTheme : lightTheme}>
-        <QueryClientProvider client={queryClient}>
-          <RuntimeConfigProvider value={runtime}>
-            <ApiProvider value={api}>
-              <AuthProvider manager={manager}>
-                <OnboardingProvider>{children}</OnboardingProvider>
-              </AuthProvider>
-            </ApiProvider>
-          </RuntimeConfigProvider>
-        </QueryClientProvider>
-      </PaperProvider>
+      <QueryClientProvider client={queryClient}>
+        <RuntimeConfigProvider value={runtime}>
+          <ApiProvider value={api}>
+            <AuthProvider manager={manager}>
+              <OnboardingProvider>
+                <PaperProvider theme={scheme === 'dark' ? darkTheme : lightTheme}>{children}</PaperProvider>
+              </OnboardingProvider>
+            </AuthProvider>
+          </ApiProvider>
+        </RuntimeConfigProvider>
+      </QueryClientProvider>
     </SafeAreaProvider>
   );
 }

@@ -31,6 +31,8 @@ function RootNavigator() {
       <Stack.Protected guard={inApp}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="wallet-new" />
+        <Stack.Screen name="movement-new" />
+        <Stack.Screen name="operation" />
       </Stack.Protected>
       <Stack.Protected guard={needsOnboarding}>
         <Stack.Screen name="onboarding" />

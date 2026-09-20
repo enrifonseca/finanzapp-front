@@ -1,8 +1,10 @@
 import { Button, Card, Text } from 'react-native-paper';
 import { useApi, useBackendStatus } from '@/core-react';
-import { EmptyState, ScreenContainer } from '@/layout';
+import { ScreenContainer } from '@/layout';
 import { StatusChip } from '@/ui-system';
 import { useRouter } from 'expo-router';
+import { Habituales } from '../movements/Habituales';
+import { RecentOperations } from '../movements/RecentOperations';
 import { WalletsList } from '../wallets/WalletsList';
 import { AccountCard } from './AccountCard';
 
@@ -15,6 +17,10 @@ export function HomeScreen() {
   const router = useRouter();
   return (
     <ScreenContainer>
+      <Button mode="contained" icon="plus" onPress={() => router.push('/movement-new')} accessibilityLabel="Nuevo movimiento">
+        Nuevo movimiento
+      </Button>
+      <Habituales />
       <Text variant="titleMedium">Billeteras</Text>
       <WalletsList onCreate={() => router.push('/wallet-new')} />
       <AccountCard />
@@ -30,7 +36,8 @@ export function HomeScreen() {
           </Button>
         </Card.Actions>
       </Card>
-      <EmptyState title="Últimos movimientos" description="Los movimientos se registran a partir de la Fase 3." />
+      <Text variant="titleMedium">Últimos movimientos</Text>
+      <RecentOperations />
     </ScreenContainer>
   );
 }

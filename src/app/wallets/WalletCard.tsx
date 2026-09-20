@@ -20,6 +20,8 @@ export function WalletCard({ wallet }: { wallet: Wallet }) {
         {wallet.balances.map((b) => (
           <Text key={b.currency} variant="bodySmall">
             {b.currency}: sin saldo inicial
+            {/* Solo se informa lo REGISTRADO: no es el saldo disponible (que se desconoce). */}
+            {!/^-?0+(\.0+)?$/.test(b.observedDelta) ? ` · movimientos registrados: ${b.observedDelta}` : ''}
           </Text>
         ))}
         {wallet.creditProfile && (
