@@ -2,6 +2,7 @@ import { Button, Card, Text } from 'react-native-paper';
 import { useApi, useBackendStatus } from '@/core-react';
 import { EmptyState, ScreenContainer } from '@/layout';
 import { StatusChip } from '@/ui-system';
+import { AccountCard } from './AccountCard';
 
 const LABEL = { checking: 'Verificando…', up: 'Conectado', down: 'Sin conexión con el backend' } as const;
 const TONE = { checking: 'neutral', up: 'positive', down: 'negative' } as const;
@@ -11,6 +12,7 @@ export function HomeScreen() {
   const { status, refetch, isFetching } = useBackendStatus();
   return (
     <ScreenContainer>
+      <AccountCard />
       <Card>
         <Card.Title title="Conexión con el backend" subtitle="Diagnóstico de desarrollo (Fase 0)" />
         <Card.Content style={{ gap: 8 }}>

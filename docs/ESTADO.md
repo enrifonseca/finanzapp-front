@@ -1,23 +1,23 @@
 # Estado del proyecto
 
-- **Fase actual:** Fase 0 (bootstrap) — frontend implementado, **pendiente de tu revisión**
-- **Rama:** `feature/fase0-bootstrap-frontend` (sin mergear a main)
-- **Última tarea completada:** Bootstrap frontend (capas, Expo Router, Paper MD3, TanStack Query, RHF+Zod instalados, 5 tabs vacías, cliente OpenAPI tipado, chip de conexión con el backend)
-- **Próximo paso:** revisión del bootstrap back+front; después Fase 1 (identidad y catálogos: backend y luego frontend).
+- **Fase actual:** Fase 1 (identidad y catálogos) — frontend implementado, **pendiente de tu revisión**
+- **Rama:** `feature/fase1-identidad-frontend` (apilada sobre `feature/fase0-bootstrap-frontend`; ninguna mergeada ni pusheada)
+- **Última tarea completada:** login (modo desarrollo), sesión segura con refresh, guard de rutas, `GET /v1/me` en Inicio, cierre de sesión
+- **Próximo paso:** Fase 2 (primer uso y billeteras), sujeta a las decisiones pendientes anotadas abajo.
 
 ## Qué quedó hecho
-- Capas `kernel/core-react/ui-system/layout/app` con dependencias verificadas por test.
-- Navegación de 5 tabs (Inicio, Movimientos, Billeteras, Planificación, Reportes) con estados vacíos.
-- Cliente HTTP generado desde `contracts/openapi.json` del back (`pnpm sync-contract`).
-- Inicio muestra el estado de conexión con el backend (`GET /health/ready`), como diagnóstico de desarrollo.
-- Verificado en navegador (Chrome headless) contra el back real: "Conectado" y, con el API apagado, "Sin conexión con el backend".
+- `SessionManager` (single-flight refresh, expiración, corte de red sin desloguear), cliente API con Bearer y reintento en 401.
+- Rutas protegidas con `Stack.Protected`: sin sesión solo existe `/login`.
+- Login con React Hook Form + Zod (primer uso real de ambos), errores tipados (credenciales / no configurado / red).
+- Inicio muestra `GET /v1/me` sin inventar datos ("sin definir", "pendiente").
+- Verificado en Chrome real contra el back: login → perfil → recarga con sesión → logout → rutas protegidas.
+- 33 tests Jest, lint y tipos limpios.
 
 ## Mockeado / pendiente / sin conectar
-- Ninguna pantalla tiene lógica de negocio ni consume `/v1/me` ni `/v1/wallets` (esos endpoints responden 501 hasta Fases 1-2).
-- React Hook Form + Zod están instalados pero aún sin uso (primer formulario: Fase 1/2).
-- No probado en emulador/dispositivo (Android/iOS): solo web y tests. Expo Go / emulador requieren ajustar `EXPO_PUBLIC_API_URL` (ver README).
-- Sin autenticación (Fase 1).
-- `docs/PLAN-EJECUCION-CLAUDE-CODE.md` (referenciado por CLAUDE.md) no está en este repo: por instrucción solo se copió al back.
+- **Login con Google/Apple: botones deshabilitados.** Requiere client IDs OAuth creados por vos y luego integrar el flujo PKCE/SDK. Sin esto solo entra el modo desarrollo.
+- Catálogos (monedas, bancos, categorías, referencias): endpoints del back listos, **sin UI todavía** (la UI de alta contextual llega con Fase 2/3; la Fase 1 del plan pide solo login + `/v1/me`).
+- Web guarda la sesión en `sessionStorage` (sin almacenamiento seguro del sistema).
+- No probado en emulador/dispositivo.
 
 ## Decisiones de docs/spec/11 consultadas en esta fase
-- Ninguna.
+- Ninguna consultada al dueño. D-18 (monedas no ISO) quedó abierta: el back solo habilita monedas del catálogo ISO.

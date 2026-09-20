@@ -1,37 +1,53 @@
 import { screen, waitFor } from '@testing-library/react-native';
 import { HomeScreen } from '@/app/home/HomeScreen';
-import { renderWithProviders, TEST_API } from './render';
+import { ME, installFakeApi, json } from './helpers/fake-api';
+import { VALID_SESSION, renderWithProviders, TEST_API } from './render';
 
-const realFetch = global.fetch;
-afterEach(() => {
-  global.fetch = realFetch;
-});
+let fake: ReturnType<typeof installFakeApi>;
+afterEach(() => fake?.restore());
 
-const mockFetch = (impl: () => Promise<Response>) => {
-  global.fetch = jest.fn(impl) as unknown as typeof fetch;
-};
+const ready = (status: number) => () => json(status === 200 ? { status: 'ok' } : { code: 'INTERNAL_ERROR' }, status);
 
 describe('HomeScreen: estado de conexión con el backend', () => {
   it('muestra "Conectado" cuando /health/ready responde 200 y consulta la URL correcta', async () => {
-    mockFetch(async () => new Response(JSON.stringify({ status: 'ok' }), { status: 200, headers: { 'content-type': 'application/json' } }));
-    await renderWithProviders(<HomeScreen />);
-    expect(screen.getByText('Verificando…')).toBeTruthy();
+    fake = installFakeApi({ 'GET /health/ready': ready(200), 'GET /v1/me': () => json(ME) });
+    await renderWithProviders(<HomeScreen />, { session: VALID_SESSION });
     await waitFor(() => expect(screen.getByText('Conectado')).toBeTruthy());
-    const req = (global.fetch as jest.Mock).mock.calls[0][0] as Request;
-    expect(req.url).toBe(`${TEST_API}/health/ready`);
+    expect(fake.calls).toContain('GET /health/ready');
+    expect(TEST_API).toBe('http://api.test');
   });
 
   it('muestra "Sin conexión" cuando el backend responde 503', async () => {
-    mockFetch(async () => new Response(JSON.stringify({ code: 'INTERNAL_ERROR' }), { status: 503, headers: { 'content-type': 'application/json' } }));
-    await renderWithProviders(<HomeScreen />);
+    fake = installFakeApi({ 'GET /health/ready': ready(503), 'GET /v1/me': () => json(ME) });
+    await renderWithProviders(<HomeScreen />, { session: VALID_SESSION });
     await waitFor(() => expect(screen.getByText('Sin conexión con el backend')).toBeTruthy());
   });
 
   it('muestra "Sin conexión" cuando la red falla', async () => {
-    mockFetch(async () => {
-      throw new TypeError('Network request failed');
+    fake = installFakeApi({
+      'GET /health/ready': () => {
+        throw new TypeError('Network request failed');
+      },
+      'GET /v1/me': () => json(ME),
     });
-    await renderWithProviders(<HomeScreen />);
+    await renderWithProviders(<HomeScreen />, { session: VALID_SESSION });
     await waitFor(() => expect(screen.getByText('Sin conexión con el backend')).toBeTruthy());
+  });
+});
+
+describe('HomeScreen: tu cuenta (GET /v1/me)', () => {
+  it('muestra el perfil sin inventar datos: moneda "sin definir" y primer uso pendiente', async () => {
+    fake = installFakeApi({ 'GET /health/ready': ready(200), 'GET /v1/me': () => json(ME) });
+    await renderWithProviders(<HomeScreen />, { session: VALID_SESSION });
+    await waitFor(() => expect(screen.getByText('Idioma: es-AR')).toBeTruthy());
+    expect(screen.getByText('Moneda preferida: sin definir')).toBeTruthy();
+    expect(screen.getByText('Primer uso: pendiente (sin billeteras)')).toBeTruthy();
+  });
+
+  it('si /v1/me falla muestra error con reintento', async () => {
+    fake = installFakeApi({ 'GET /health/ready': ready(200), 'GET /v1/me': () => json({ code: 'INTERNAL_ERROR' }, 500) });
+    await renderWithProviders(<HomeScreen />, { session: VALID_SESSION });
+    await waitFor(() => expect(screen.getByText('No se pudo cargar tu perfil.')).toBeTruthy());
+    expect(screen.getByText('Reintentar perfil')).toBeTruthy();
   });
 });
