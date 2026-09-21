@@ -132,6 +132,150 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/cards/{walletId}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CardsController_profile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["CardsController_patchProfile"];
+        trace?: never;
+    };
+    "/v1/cards/{walletId}/periods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CardsController_overview"];
+        put?: never;
+        post: operations["CardsController_createPeriod"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cards/{walletId}/periods/{periodId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["CardsController_patchPeriod"];
+        trace?: never;
+    };
+    "/v1/cards/{walletId}/periods/{periodId}/statement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CardsController_statement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cards/{walletId}/periods/{periodId}/bank-totals/{currency}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["CardsController_setBankTotal"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cards/{walletId}/periods/{periodId}/charges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CardsController_charge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cards/{walletId}/periods/{periodId}/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CardsController_pay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cards/{walletId}/installments/{installmentId}/move": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CardsController_move"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/cards/{walletId}/purchases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CardsController_purchase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/me": {
         parameters: {
             query?: never;
@@ -302,7 +446,7 @@ export interface components {
         };
         ErrorResponseDto: {
             /** @enum {string} */
-            code: "BAD_REQUEST" | "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND_OR_NOT_OWNED" | "IDEMPOTENCY_CONFLICT" | "CONCURRENT_UPDATE" | "RATE_LIMITED" | "NOT_IMPLEMENTED" | "INTERNAL_ERROR" | "WALLET_CURRENCY_NOT_ALLOWED" | "CREDIT_NOT_VALID_FOR_SALARY_DESTINATION" | "BANK_REQUIRED" | "UNKNOWN_BILLING_PERIOD" | "INSUFFICIENT_KNOWN_BALANCE" | "DUE_OVERALLOCATED" | "FX_RATE_REQUIRED" | "LOAN_RECONCILIATION_REQUIRED" | "FORECAST_NOT_ACTUAL" | "BUDGET_CURRENCY_MISMATCH" | "CURRENCY_NOT_IN_CATALOG" | "CURRENCY_NOT_ENABLED" | "INVALID_CATEGORY_PARENT" | "BANK_ARCHIVED" | "SETTLEMENT_MISMATCH" | "CATEGORY_FAMILY_MISMATCH" | "CATEGORY_ARCHIVED" | "WALLET_ARCHIVED" | "OPERATION_ALREADY_REVERSED" | "INVALID_AMOUNT";
+            code: "BAD_REQUEST" | "UNAUTHENTICATED" | "FORBIDDEN" | "NOT_FOUND_OR_NOT_OWNED" | "IDEMPOTENCY_CONFLICT" | "CONCURRENT_UPDATE" | "RATE_LIMITED" | "NOT_IMPLEMENTED" | "INTERNAL_ERROR" | "WALLET_CURRENCY_NOT_ALLOWED" | "CREDIT_NOT_VALID_FOR_SALARY_DESTINATION" | "BANK_REQUIRED" | "UNKNOWN_BILLING_PERIOD" | "INSUFFICIENT_KNOWN_BALANCE" | "DUE_OVERALLOCATED" | "FX_RATE_REQUIRED" | "LOAN_RECONCILIATION_REQUIRED" | "FORECAST_NOT_ACTUAL" | "BUDGET_CURRENCY_MISMATCH" | "CURRENCY_NOT_IN_CATALOG" | "CURRENCY_NOT_ENABLED" | "INVALID_CATEGORY_PARENT" | "BANK_ARCHIVED" | "SETTLEMENT_MISMATCH" | "CATEGORY_FAMILY_MISMATCH" | "CATEGORY_ARCHIVED" | "WALLET_ARCHIVED" | "OPERATION_ALREADY_REVERSED" | "INVALID_AMOUNT" | "STATEMENT_HAS_PAYMENTS" | "INVALID_INSTALLMENTS" | "PERIOD_ALREADY_EXISTS" | "STATEMENT_TOTAL_BELOW_PAID" | "NOTHING_TO_PAY" | "INVALID_PERIOD_DATES" | "NOT_A_CREDIT_CARD" | "CARD_PURCHASE_ENDPOINT_REQUIRED";
             message: string;
             fieldErrors?: {
                 [key: string]: string;
@@ -512,7 +656,52 @@ export interface operations {
                             /** @enum {string} */
                             family: "INCOME" | "EXPENSE";
                             /** @enum {string} */
-                            kind: "EARNED_INCOME" | "INCURRED_EXPENSE";
+                            kind: "EARNED_INCOME" | "INCURRED_EXPENSE" | "CREDIT_CARD_PURCHASE" | "CARD_CHARGE" | "CARD_SETTLEMENT";
+                            cardPurchase?: {
+                                /** Format: uuid */
+                                walletId: string;
+                                walletName: string;
+                                purchaseDate: string;
+                                currency: string;
+                                /** @description Precio del producto (el gasto) */
+                                principal: string;
+                                /** @description Interés calculado: cantidad × cuota − precio */
+                                interest: string;
+                                /** @description Lo que realmente se paga: precio + interés */
+                                totalPaid: string;
+                                installmentCount: number;
+                                installmentAmount: string;
+                                installments: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    number: number;
+                                    amount: string;
+                                    /** @enum {string} */
+                                    state: "ACTIVE" | "CANCELLED";
+                                    /**
+                                     * Format: uuid
+                                     * @description null = sin resumen asignado (período desconocido)
+                                     */
+                                    periodId: string | null;
+                                    cycleLabel: string | null;
+                                    closeDate: string | null;
+                                    dueDate: string | null;
+                                }[];
+                            };
+                            cardPayment?: {
+                                /** Format: uuid */
+                                cardWalletId: string;
+                                /** Format: uuid */
+                                periodId: string;
+                                cycleLabel: string;
+                                currency: string;
+                                /** @description Deuda que cancela, en la moneda del resumen */
+                                appliedAmount: string;
+                                /** @description Cotización implícita si se pagó en otra moneda (solo informativa) */
+                                impliedRate: string | null;
+                                /** @enum {string} */
+                                state: "ACTIVE" | "REVERSED";
+                            };
                             /** Format: uuid */
                             categoryId: string | null;
                             categoryName: string | null;
@@ -535,6 +724,11 @@ export interface operations {
                                 /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
                                 economicDate: string | null;
                                 economicPeriod: string | null;
+                                /**
+                                 * @description null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte
+                                 * @enum {string|null}
+                                 */
+                                subtype: "INTEREST" | "FEE" | "TAX" | null;
                             }[];
                             /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
                             settlements: {
@@ -634,7 +828,52 @@ export interface operations {
                         /** @enum {string} */
                         family: "INCOME" | "EXPENSE";
                         /** @enum {string} */
-                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE";
+                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE" | "CREDIT_CARD_PURCHASE" | "CARD_CHARGE" | "CARD_SETTLEMENT";
+                        cardPurchase?: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            purchaseDate: string;
+                            currency: string;
+                            /** @description Precio del producto (el gasto) */
+                            principal: string;
+                            /** @description Interés calculado: cantidad × cuota − precio */
+                            interest: string;
+                            /** @description Lo que realmente se paga: precio + interés */
+                            totalPaid: string;
+                            installmentCount: number;
+                            installmentAmount: string;
+                            installments: {
+                                /** Format: uuid */
+                                id: string;
+                                number: number;
+                                amount: string;
+                                /** @enum {string} */
+                                state: "ACTIVE" | "CANCELLED";
+                                /**
+                                 * Format: uuid
+                                 * @description null = sin resumen asignado (período desconocido)
+                                 */
+                                periodId: string | null;
+                                cycleLabel: string | null;
+                                closeDate: string | null;
+                                dueDate: string | null;
+                            }[];
+                        };
+                        cardPayment?: {
+                            /** Format: uuid */
+                            cardWalletId: string;
+                            /** Format: uuid */
+                            periodId: string;
+                            cycleLabel: string;
+                            currency: string;
+                            /** @description Deuda que cancela, en la moneda del resumen */
+                            appliedAmount: string;
+                            /** @description Cotización implícita si se pagó en otra moneda (solo informativa) */
+                            impliedRate: string | null;
+                            /** @enum {string} */
+                            state: "ACTIVE" | "REVERSED";
+                        };
                         /** Format: uuid */
                         categoryId: string | null;
                         categoryName: string | null;
@@ -657,6 +896,11 @@ export interface operations {
                             /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
                             economicDate: string | null;
                             economicPeriod: string | null;
+                            /**
+                             * @description null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte
+                             * @enum {string|null}
+                             */
+                            subtype: "INTEREST" | "FEE" | "TAX" | null;
                         }[];
                         /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
                         settlements: {
@@ -716,7 +960,7 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponseDto"];
                 };
             };
-            /** @description Gasto con tarjeta de crédito o recurrencia: fases posteriores */
+            /** @description Recurrencia: fase posterior */
             501: {
                 headers: {
                     [name: string]: unknown;
@@ -749,7 +993,52 @@ export interface operations {
                         /** @enum {string} */
                         family: "INCOME" | "EXPENSE";
                         /** @enum {string} */
-                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE";
+                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE" | "CREDIT_CARD_PURCHASE" | "CARD_CHARGE" | "CARD_SETTLEMENT";
+                        cardPurchase?: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            purchaseDate: string;
+                            currency: string;
+                            /** @description Precio del producto (el gasto) */
+                            principal: string;
+                            /** @description Interés calculado: cantidad × cuota − precio */
+                            interest: string;
+                            /** @description Lo que realmente se paga: precio + interés */
+                            totalPaid: string;
+                            installmentCount: number;
+                            installmentAmount: string;
+                            installments: {
+                                /** Format: uuid */
+                                id: string;
+                                number: number;
+                                amount: string;
+                                /** @enum {string} */
+                                state: "ACTIVE" | "CANCELLED";
+                                /**
+                                 * Format: uuid
+                                 * @description null = sin resumen asignado (período desconocido)
+                                 */
+                                periodId: string | null;
+                                cycleLabel: string | null;
+                                closeDate: string | null;
+                                dueDate: string | null;
+                            }[];
+                        };
+                        cardPayment?: {
+                            /** Format: uuid */
+                            cardWalletId: string;
+                            /** Format: uuid */
+                            periodId: string;
+                            cycleLabel: string;
+                            currency: string;
+                            /** @description Deuda que cancela, en la moneda del resumen */
+                            appliedAmount: string;
+                            /** @description Cotización implícita si se pagó en otra moneda (solo informativa) */
+                            impliedRate: string | null;
+                            /** @enum {string} */
+                            state: "ACTIVE" | "REVERSED";
+                        };
                         /** Format: uuid */
                         categoryId: string | null;
                         categoryName: string | null;
@@ -772,6 +1061,11 @@ export interface operations {
                             /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
                             economicDate: string | null;
                             economicPeriod: string | null;
+                            /**
+                             * @description null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte
+                             * @enum {string|null}
+                             */
+                            subtype: "INTEREST" | "FEE" | "TAX" | null;
                         }[];
                         /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
                         settlements: {
@@ -844,7 +1138,52 @@ export interface operations {
                         /** @enum {string} */
                         family: "INCOME" | "EXPENSE";
                         /** @enum {string} */
-                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE";
+                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE" | "CREDIT_CARD_PURCHASE" | "CARD_CHARGE" | "CARD_SETTLEMENT";
+                        cardPurchase?: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            purchaseDate: string;
+                            currency: string;
+                            /** @description Precio del producto (el gasto) */
+                            principal: string;
+                            /** @description Interés calculado: cantidad × cuota − precio */
+                            interest: string;
+                            /** @description Lo que realmente se paga: precio + interés */
+                            totalPaid: string;
+                            installmentCount: number;
+                            installmentAmount: string;
+                            installments: {
+                                /** Format: uuid */
+                                id: string;
+                                number: number;
+                                amount: string;
+                                /** @enum {string} */
+                                state: "ACTIVE" | "CANCELLED";
+                                /**
+                                 * Format: uuid
+                                 * @description null = sin resumen asignado (período desconocido)
+                                 */
+                                periodId: string | null;
+                                cycleLabel: string | null;
+                                closeDate: string | null;
+                                dueDate: string | null;
+                            }[];
+                        };
+                        cardPayment?: {
+                            /** Format: uuid */
+                            cardWalletId: string;
+                            /** Format: uuid */
+                            periodId: string;
+                            cycleLabel: string;
+                            currency: string;
+                            /** @description Deuda que cancela, en la moneda del resumen */
+                            appliedAmount: string;
+                            /** @description Cotización implícita si se pagó en otra moneda (solo informativa) */
+                            impliedRate: string | null;
+                            /** @enum {string} */
+                            state: "ACTIVE" | "REVERSED";
+                        };
                         /** Format: uuid */
                         categoryId: string | null;
                         categoryName: string | null;
@@ -867,6 +1206,11 @@ export interface operations {
                             /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
                             economicDate: string | null;
                             economicPeriod: string | null;
+                            /**
+                             * @description null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte
+                             * @enum {string|null}
+                             */
+                            subtype: "INTEREST" | "FEE" | "TAX" | null;
                         }[];
                         /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
                         settlements: {
@@ -936,7 +1280,52 @@ export interface operations {
                         /** @enum {string} */
                         family: "INCOME" | "EXPENSE";
                         /** @enum {string} */
-                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE";
+                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE" | "CREDIT_CARD_PURCHASE" | "CARD_CHARGE" | "CARD_SETTLEMENT";
+                        cardPurchase?: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            purchaseDate: string;
+                            currency: string;
+                            /** @description Precio del producto (el gasto) */
+                            principal: string;
+                            /** @description Interés calculado: cantidad × cuota − precio */
+                            interest: string;
+                            /** @description Lo que realmente se paga: precio + interés */
+                            totalPaid: string;
+                            installmentCount: number;
+                            installmentAmount: string;
+                            installments: {
+                                /** Format: uuid */
+                                id: string;
+                                number: number;
+                                amount: string;
+                                /** @enum {string} */
+                                state: "ACTIVE" | "CANCELLED";
+                                /**
+                                 * Format: uuid
+                                 * @description null = sin resumen asignado (período desconocido)
+                                 */
+                                periodId: string | null;
+                                cycleLabel: string | null;
+                                closeDate: string | null;
+                                dueDate: string | null;
+                            }[];
+                        };
+                        cardPayment?: {
+                            /** Format: uuid */
+                            cardWalletId: string;
+                            /** Format: uuid */
+                            periodId: string;
+                            cycleLabel: string;
+                            currency: string;
+                            /** @description Deuda que cancela, en la moneda del resumen */
+                            appliedAmount: string;
+                            /** @description Cotización implícita si se pagó en otra moneda (solo informativa) */
+                            impliedRate: string | null;
+                            /** @enum {string} */
+                            state: "ACTIVE" | "REVERSED";
+                        };
                         /** Format: uuid */
                         categoryId: string | null;
                         categoryName: string | null;
@@ -959,6 +1348,11 @@ export interface operations {
                             /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
                             economicDate: string | null;
                             economicPeriod: string | null;
+                            /**
+                             * @description null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte
+                             * @enum {string|null}
+                             */
+                            subtype: "INTEREST" | "FEE" | "TAX" | null;
                         }[];
                         /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
                         settlements: {
@@ -994,6 +1388,1285 @@ export interface operations {
             };
             /** @description OPERATION_ALREADY_REVERSED, IDEMPOTENCY_CONFLICT o solicitud en curso */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CardsController_profile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                walletId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        walletId: string;
+                        /** @enum {string} */
+                        billingMode: "FIXED_PATTERN" | "VARIABLE_PER_PERIOD";
+                        /** @enum {string} */
+                        setupStatus: "PARTIAL" | "COMPLETE";
+                        /** @description Día de cierre del mes; null = sin cargar (las compras quedan sin período) */
+                        nominalCloseDay: number | null;
+                        /** @description Día de vencimiento del mes; null = sin cargar */
+                        nominalDueDay: number | null;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CardsController_patchProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                walletId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    nominalCloseDay?: number | null;
+                    nominalDueDay?: number | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        walletId: string;
+                        /** @enum {string} */
+                        billingMode: "FIXED_PATTERN" | "VARIABLE_PER_PERIOD";
+                        /** @enum {string} */
+                        setupStatus: "PARTIAL" | "COMPLETE";
+                        /** @description Día de cierre del mes; null = sin cargar (las compras quedan sin período) */
+                        nominalCloseDay: number | null;
+                        /** @description Día de vencimiento del mes; null = sin cargar */
+                        nominalDueDay: number | null;
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CardsController_overview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                walletId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        periods: {
+                            period: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                walletId: string;
+                                /** @description AAAA-MM del mes de cierre */
+                                cycleLabel: string;
+                                openDate: string | null;
+                                closeDate: string | null;
+                                dueDate: string | null;
+                                /**
+                                 * @description ESTIMATED = calculada por la app; CONFIRMED = cargada o corregida por el usuario
+                                 * @enum {string}
+                                 */
+                                dateConfidence: "ESTIMATED" | "CONFIRMED";
+                                version: number;
+                            };
+                            /** @description Una deuda por moneda: nunca se mezclan */
+                            currencies: {
+                                currency: string;
+                                installments: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    /** Format: uuid */
+                                    purchaseId: string;
+                                    /** Format: uuid */
+                                    operationId: string;
+                                    concept: string;
+                                    number: number;
+                                    count: number;
+                                    amount: string;
+                                    purchaseDate: string;
+                                }[];
+                                charges: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    /** @enum {string} */
+                                    kind: "INTEREST" | "FEE" | "TAX" | "PENALTY";
+                                    amount: string;
+                                    description: string | null;
+                                    /** Format: uuid */
+                                    operationId: string;
+                                }[];
+                                /** @description Cuotas + cargos, calculado por la app */
+                                computedTotal: string;
+                                /** @description Total REAL informado por el banco */
+                                bankTotal: string | null;
+                                /** @description bankTotal − computedTotal: la diferencia queda visible */
+                                adjustment: string | null;
+                                /** @description Total a pagar: el del banco si se cargó; si no, el calculado */
+                                amountDue: string;
+                                paid: string;
+                                /** @description Saldo pendiente. Nunca negativo */
+                                outstanding: string;
+                            }[];
+                        }[];
+                        /** @description Cuotas sin resumen asignado (período desconocido) */
+                        unassigned: {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            purchaseId: string;
+                            /** Format: uuid */
+                            operationId: string;
+                            concept: string;
+                            number: number;
+                            count: number;
+                            amount: string;
+                            purchaseDate: string;
+                            currency: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CardsController_createPeriod: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                walletId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    closeDate: string;
+                    openDate?: string;
+                    dueDate?: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** Format: uuid */
+                        walletId: string;
+                        /** @description AAAA-MM del mes de cierre */
+                        cycleLabel: string;
+                        openDate: string | null;
+                        closeDate: string | null;
+                        dueDate: string | null;
+                        /**
+                         * @description ESTIMATED = calculada por la app; CONFIRMED = cargada o corregida por el usuario
+                         * @enum {string}
+                         */
+                        dateConfidence: "ESTIMATED" | "CONFIRMED";
+                        version: number;
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Conflicto (idempotencia, versión, período existente o resumen con pagos) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Regla financiera */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CardsController_patchPeriod: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                walletId: string;
+                periodId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    openDate?: string | null;
+                    closeDate?: string | null;
+                    dueDate?: string | null;
+                    expectedVersion?: number;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** Format: uuid */
+                        walletId: string;
+                        /** @description AAAA-MM del mes de cierre */
+                        cycleLabel: string;
+                        openDate: string | null;
+                        closeDate: string | null;
+                        dueDate: string | null;
+                        /**
+                         * @description ESTIMATED = calculada por la app; CONFIRMED = cargada o corregida por el usuario
+                         * @enum {string}
+                         */
+                        dateConfidence: "ESTIMATED" | "CONFIRMED";
+                        version: number;
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Conflicto (idempotencia, versión, período existente o resumen con pagos) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Regla financiera */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CardsController_statement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                walletId: string;
+                periodId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        period: {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            walletId: string;
+                            /** @description AAAA-MM del mes de cierre */
+                            cycleLabel: string;
+                            openDate: string | null;
+                            closeDate: string | null;
+                            dueDate: string | null;
+                            /**
+                             * @description ESTIMATED = calculada por la app; CONFIRMED = cargada o corregida por el usuario
+                             * @enum {string}
+                             */
+                            dateConfidence: "ESTIMATED" | "CONFIRMED";
+                            version: number;
+                        };
+                        /** @description Una deuda por moneda: nunca se mezclan */
+                        currencies: {
+                            currency: string;
+                            installments: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                purchaseId: string;
+                                /** Format: uuid */
+                                operationId: string;
+                                concept: string;
+                                number: number;
+                                count: number;
+                                amount: string;
+                                purchaseDate: string;
+                            }[];
+                            charges: {
+                                /** Format: uuid */
+                                id: string;
+                                /** @enum {string} */
+                                kind: "INTEREST" | "FEE" | "TAX" | "PENALTY";
+                                amount: string;
+                                description: string | null;
+                                /** Format: uuid */
+                                operationId: string;
+                            }[];
+                            /** @description Cuotas + cargos, calculado por la app */
+                            computedTotal: string;
+                            /** @description Total REAL informado por el banco */
+                            bankTotal: string | null;
+                            /** @description bankTotal − computedTotal: la diferencia queda visible */
+                            adjustment: string | null;
+                            /** @description Total a pagar: el del banco si se cargó; si no, el calculado */
+                            amountDue: string;
+                            paid: string;
+                            /** @description Saldo pendiente. Nunca negativo */
+                            outstanding: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CardsController_setBankTotal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                walletId: string;
+                periodId: string;
+                currency: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description null = quitar el total del banco y volver al calculado */
+                    bankTotal: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        period: {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            walletId: string;
+                            /** @description AAAA-MM del mes de cierre */
+                            cycleLabel: string;
+                            openDate: string | null;
+                            closeDate: string | null;
+                            dueDate: string | null;
+                            /**
+                             * @description ESTIMATED = calculada por la app; CONFIRMED = cargada o corregida por el usuario
+                             * @enum {string}
+                             */
+                            dateConfidence: "ESTIMATED" | "CONFIRMED";
+                            version: number;
+                        };
+                        /** @description Una deuda por moneda: nunca se mezclan */
+                        currencies: {
+                            currency: string;
+                            installments: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                purchaseId: string;
+                                /** Format: uuid */
+                                operationId: string;
+                                concept: string;
+                                number: number;
+                                count: number;
+                                amount: string;
+                                purchaseDate: string;
+                            }[];
+                            charges: {
+                                /** Format: uuid */
+                                id: string;
+                                /** @enum {string} */
+                                kind: "INTEREST" | "FEE" | "TAX" | "PENALTY";
+                                amount: string;
+                                description: string | null;
+                                /** Format: uuid */
+                                operationId: string;
+                            }[];
+                            /** @description Cuotas + cargos, calculado por la app */
+                            computedTotal: string;
+                            /** @description Total REAL informado por el banco */
+                            bankTotal: string | null;
+                            /** @description bankTotal − computedTotal: la diferencia queda visible */
+                            adjustment: string | null;
+                            /** @description Total a pagar: el del banco si se cargó; si no, el calculado */
+                            amountDue: string;
+                            paid: string;
+                            /** @description Saldo pendiente. Nunca negativo */
+                            outstanding: string;
+                        }[];
+                    };
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Regla financiera */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CardsController_charge: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Mismo key+contenido => misma respuesta sin duplicar; contenido distinto => 409 */
+                "Idempotency-Key": string;
+            };
+            path: {
+                walletId: string;
+                periodId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * @description PENALTY = multa o costo de refinanciación
+                     * @enum {string}
+                     */
+                    kind: "INTEREST" | "FEE" | "TAX" | "PENALTY";
+                    currency: string;
+                    amount: string;
+                    date: string;
+                    description?: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        family: "INCOME" | "EXPENSE";
+                        /** @enum {string} */
+                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE" | "CREDIT_CARD_PURCHASE" | "CARD_CHARGE" | "CARD_SETTLEMENT";
+                        cardPurchase?: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            purchaseDate: string;
+                            currency: string;
+                            /** @description Precio del producto (el gasto) */
+                            principal: string;
+                            /** @description Interés calculado: cantidad × cuota − precio */
+                            interest: string;
+                            /** @description Lo que realmente se paga: precio + interés */
+                            totalPaid: string;
+                            installmentCount: number;
+                            installmentAmount: string;
+                            installments: {
+                                /** Format: uuid */
+                                id: string;
+                                number: number;
+                                amount: string;
+                                /** @enum {string} */
+                                state: "ACTIVE" | "CANCELLED";
+                                /**
+                                 * Format: uuid
+                                 * @description null = sin resumen asignado (período desconocido)
+                                 */
+                                periodId: string | null;
+                                cycleLabel: string | null;
+                                closeDate: string | null;
+                                dueDate: string | null;
+                            }[];
+                        };
+                        cardPayment?: {
+                            /** Format: uuid */
+                            cardWalletId: string;
+                            /** Format: uuid */
+                            periodId: string;
+                            cycleLabel: string;
+                            currency: string;
+                            /** @description Deuda que cancela, en la moneda del resumen */
+                            appliedAmount: string;
+                            /** @description Cotización implícita si se pagó en otra moneda (solo informativa) */
+                            impliedRate: string | null;
+                            /** @enum {string} */
+                            state: "ACTIVE" | "REVERSED";
+                        };
+                        /** Format: uuid */
+                        categoryId: string | null;
+                        categoryName: string | null;
+                        concept: string;
+                        /** Format: uuid */
+                        referenceId: string | null;
+                        referenceName: string | null;
+                        economicPeriod: string | null;
+                        note: string | null;
+                        /** @enum {string} */
+                        state: "CONFIRMED" | "REVERSED";
+                        /** @description Instante ISO 8601 */
+                        recordedAt: string;
+                        /** @description LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez */
+                        economicComponents: {
+                            /** @enum {string} */
+                            direction: "INCOME" | "EXPENSE";
+                            currency: string;
+                            amount: string;
+                            /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
+                            economicDate: string | null;
+                            economicPeriod: string | null;
+                            /**
+                             * @description null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte
+                             * @enum {string|null}
+                             */
+                            subtype: "INTEREST" | "FEE" | "TAX" | null;
+                        }[];
+                        /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
+                        settlements: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            currency: string;
+                            /** @description Magnitud positiva; el sentido lo da la familia */
+                            amount: string;
+                            effectiveDate: string;
+                        }[];
+                        version: number;
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Conflicto (idempotencia, versión, período existente o resumen con pagos) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Regla financiera */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CardsController_pay: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Mismo key+contenido => misma respuesta sin duplicar; contenido distinto => 409 */
+                "Idempotency-Key": string;
+            };
+            path: {
+                walletId: string;
+                periodId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Moneda de la deuda del resumen que se cancela */
+                    currency: string;
+                    /** @description Cuánta deuda cancela, en la moneda del resumen */
+                    appliedAmount: string;
+                    /**
+                     * Format: uuid
+                     * @description Billetera (efectivo o débito) de la que sale el dinero
+                     */
+                    walletId: string;
+                    walletCurrency: string;
+                    /** @description Total que salió de la billetera, impuestos incluidos */
+                    walletAmount: string;
+                    /** @description Parte de walletAmount que son impuestos (gasto aparte) */
+                    taxAmount?: string;
+                    effectiveDate: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        family: "INCOME" | "EXPENSE";
+                        /** @enum {string} */
+                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE" | "CREDIT_CARD_PURCHASE" | "CARD_CHARGE" | "CARD_SETTLEMENT";
+                        cardPurchase?: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            purchaseDate: string;
+                            currency: string;
+                            /** @description Precio del producto (el gasto) */
+                            principal: string;
+                            /** @description Interés calculado: cantidad × cuota − precio */
+                            interest: string;
+                            /** @description Lo que realmente se paga: precio + interés */
+                            totalPaid: string;
+                            installmentCount: number;
+                            installmentAmount: string;
+                            installments: {
+                                /** Format: uuid */
+                                id: string;
+                                number: number;
+                                amount: string;
+                                /** @enum {string} */
+                                state: "ACTIVE" | "CANCELLED";
+                                /**
+                                 * Format: uuid
+                                 * @description null = sin resumen asignado (período desconocido)
+                                 */
+                                periodId: string | null;
+                                cycleLabel: string | null;
+                                closeDate: string | null;
+                                dueDate: string | null;
+                            }[];
+                        };
+                        cardPayment?: {
+                            /** Format: uuid */
+                            cardWalletId: string;
+                            /** Format: uuid */
+                            periodId: string;
+                            cycleLabel: string;
+                            currency: string;
+                            /** @description Deuda que cancela, en la moneda del resumen */
+                            appliedAmount: string;
+                            /** @description Cotización implícita si se pagó en otra moneda (solo informativa) */
+                            impliedRate: string | null;
+                            /** @enum {string} */
+                            state: "ACTIVE" | "REVERSED";
+                        };
+                        /** Format: uuid */
+                        categoryId: string | null;
+                        categoryName: string | null;
+                        concept: string;
+                        /** Format: uuid */
+                        referenceId: string | null;
+                        referenceName: string | null;
+                        economicPeriod: string | null;
+                        note: string | null;
+                        /** @enum {string} */
+                        state: "CONFIRMED" | "REVERSED";
+                        /** @description Instante ISO 8601 */
+                        recordedAt: string;
+                        /** @description LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez */
+                        economicComponents: {
+                            /** @enum {string} */
+                            direction: "INCOME" | "EXPENSE";
+                            currency: string;
+                            amount: string;
+                            /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
+                            economicDate: string | null;
+                            economicPeriod: string | null;
+                            /**
+                             * @description null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte
+                             * @enum {string|null}
+                             */
+                            subtype: "INTEREST" | "FEE" | "TAX" | null;
+                        }[];
+                        /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
+                        settlements: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            currency: string;
+                            /** @description Magnitud positiva; el sentido lo da la familia */
+                            amount: string;
+                            effectiveDate: string;
+                        }[];
+                        version: number;
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Conflicto (idempotencia, versión, período existente o resumen con pagos) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Regla financiera */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CardsController_move: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                walletId: string;
+                installmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /**
+                     * Format: uuid
+                     * @description null = dejarla sin resumen asignado
+                     */
+                    periodId: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        periods: {
+                            period: {
+                                /** Format: uuid */
+                                id: string;
+                                /** Format: uuid */
+                                walletId: string;
+                                /** @description AAAA-MM del mes de cierre */
+                                cycleLabel: string;
+                                openDate: string | null;
+                                closeDate: string | null;
+                                dueDate: string | null;
+                                /**
+                                 * @description ESTIMATED = calculada por la app; CONFIRMED = cargada o corregida por el usuario
+                                 * @enum {string}
+                                 */
+                                dateConfidence: "ESTIMATED" | "CONFIRMED";
+                                version: number;
+                            };
+                            /** @description Una deuda por moneda: nunca se mezclan */
+                            currencies: {
+                                currency: string;
+                                installments: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    /** Format: uuid */
+                                    purchaseId: string;
+                                    /** Format: uuid */
+                                    operationId: string;
+                                    concept: string;
+                                    number: number;
+                                    count: number;
+                                    amount: string;
+                                    purchaseDate: string;
+                                }[];
+                                charges: {
+                                    /** Format: uuid */
+                                    id: string;
+                                    /** @enum {string} */
+                                    kind: "INTEREST" | "FEE" | "TAX" | "PENALTY";
+                                    amount: string;
+                                    description: string | null;
+                                    /** Format: uuid */
+                                    operationId: string;
+                                }[];
+                                /** @description Cuotas + cargos, calculado por la app */
+                                computedTotal: string;
+                                /** @description Total REAL informado por el banco */
+                                bankTotal: string | null;
+                                /** @description bankTotal − computedTotal: la diferencia queda visible */
+                                adjustment: string | null;
+                                /** @description Total a pagar: el del banco si se cargó; si no, el calculado */
+                                amountDue: string;
+                                paid: string;
+                                /** @description Saldo pendiente. Nunca negativo */
+                                outstanding: string;
+                            }[];
+                        }[];
+                        /** @description Cuotas sin resumen asignado (período desconocido) */
+                        unassigned: {
+                            /** Format: uuid */
+                            id: string;
+                            /** Format: uuid */
+                            purchaseId: string;
+                            /** Format: uuid */
+                            operationId: string;
+                            concept: string;
+                            number: number;
+                            count: number;
+                            amount: string;
+                            purchaseDate: string;
+                            currency: string;
+                        }[];
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Regla financiera */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+        };
+    };
+    CardsController_purchase: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Mismo key+contenido => misma respuesta sin duplicar; contenido distinto => 409 */
+                "Idempotency-Key": string;
+            };
+            path: {
+                walletId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    purchaseDate: string;
+                    currency: string;
+                    concept: string;
+                    /** Format: uuid */
+                    categoryId?: string | null;
+                    /** Format: uuid */
+                    referenceId?: string | null;
+                    note?: string | null;
+                    /** @description Precio del producto: es el gasto */
+                    price: string;
+                    installmentCount: number;
+                    /** @description Monto de cada cuota. Obligatorio si hay más de una cuota; el interés se calcula solo */
+                    installmentAmount?: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        /** @enum {string} */
+                        family: "INCOME" | "EXPENSE";
+                        /** @enum {string} */
+                        kind: "EARNED_INCOME" | "INCURRED_EXPENSE" | "CREDIT_CARD_PURCHASE" | "CARD_CHARGE" | "CARD_SETTLEMENT";
+                        cardPurchase?: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            purchaseDate: string;
+                            currency: string;
+                            /** @description Precio del producto (el gasto) */
+                            principal: string;
+                            /** @description Interés calculado: cantidad × cuota − precio */
+                            interest: string;
+                            /** @description Lo que realmente se paga: precio + interés */
+                            totalPaid: string;
+                            installmentCount: number;
+                            installmentAmount: string;
+                            installments: {
+                                /** Format: uuid */
+                                id: string;
+                                number: number;
+                                amount: string;
+                                /** @enum {string} */
+                                state: "ACTIVE" | "CANCELLED";
+                                /**
+                                 * Format: uuid
+                                 * @description null = sin resumen asignado (período desconocido)
+                                 */
+                                periodId: string | null;
+                                cycleLabel: string | null;
+                                closeDate: string | null;
+                                dueDate: string | null;
+                            }[];
+                        };
+                        cardPayment?: {
+                            /** Format: uuid */
+                            cardWalletId: string;
+                            /** Format: uuid */
+                            periodId: string;
+                            cycleLabel: string;
+                            currency: string;
+                            /** @description Deuda que cancela, en la moneda del resumen */
+                            appliedAmount: string;
+                            /** @description Cotización implícita si se pagó en otra moneda (solo informativa) */
+                            impliedRate: string | null;
+                            /** @enum {string} */
+                            state: "ACTIVE" | "REVERSED";
+                        };
+                        /** Format: uuid */
+                        categoryId: string | null;
+                        categoryName: string | null;
+                        concept: string;
+                        /** Format: uuid */
+                        referenceId: string | null;
+                        referenceName: string | null;
+                        economicPeriod: string | null;
+                        note: string | null;
+                        /** @enum {string} */
+                        state: "CONFIRMED" | "REVERSED";
+                        /** @description Instante ISO 8601 */
+                        recordedAt: string;
+                        /** @description LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez */
+                        economicComponents: {
+                            /** @enum {string} */
+                            direction: "INCOME" | "EXPENSE";
+                            currency: string;
+                            amount: string;
+                            /** @description Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy) */
+                            economicDate: string | null;
+                            economicPeriod: string | null;
+                            /**
+                             * @description null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte
+                             * @enum {string|null}
+                             */
+                            subtype: "INTEREST" | "FEE" | "TAX" | null;
+                        }[];
+                        /** @description LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja) */
+                        settlements: {
+                            /** Format: uuid */
+                            walletId: string;
+                            walletName: string;
+                            currency: string;
+                            /** @description Magnitud positiva; el sentido lo da la familia */
+                            amount: string;
+                            effectiveDate: string;
+                        }[];
+                        version: number;
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Sin sesión válida */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description No existe o no es del usuario (404 uniforme) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Conflicto (idempotencia, versión, período existente o resumen con pagos) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponseDto"];
+                };
+            };
+            /** @description Regla financiera */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1140,6 +2813,8 @@ export interface operations {
                                 billingMode: "FIXED_PATTERN" | "VARIABLE_PER_PERIOD";
                                 /** @enum {string} */
                                 setupStatus: "PARTIAL" | "COMPLETE";
+                                nominalCloseDay: number | null;
+                                nominalDueDay: number | null;
                             } | null;
                             /** @description Saldo por moneda. "unknown" (≠ 0) mientras no exista saldo inicial verificado */
                             balances: {
@@ -1190,6 +2865,8 @@ export interface operations {
                     creditProfile?: {
                         /** @enum {string} */
                         billingMode: "FIXED_PATTERN" | "VARIABLE_PER_PERIOD";
+                        nominalCloseDay?: number;
+                        nominalDueDay?: number;
                     };
                 };
             };
@@ -1224,6 +2901,8 @@ export interface operations {
                             billingMode: "FIXED_PATTERN" | "VARIABLE_PER_PERIOD";
                             /** @enum {string} */
                             setupStatus: "PARTIAL" | "COMPLETE";
+                            nominalCloseDay: number | null;
+                            nominalDueDay: number | null;
                         } | null;
                         /** @description Saldo por moneda. "unknown" (≠ 0) mientras no exista saldo inicial verificado */
                         balances: {
@@ -1323,6 +3002,8 @@ export interface operations {
                             billingMode: "FIXED_PATTERN" | "VARIABLE_PER_PERIOD";
                             /** @enum {string} */
                             setupStatus: "PARTIAL" | "COMPLETE";
+                            nominalCloseDay: number | null;
+                            nominalDueDay: number | null;
                         } | null;
                         /** @description Saldo por moneda. "unknown" (≠ 0) mientras no exista saldo inicial verificado */
                         balances: {
@@ -1412,6 +3093,8 @@ export interface operations {
                             billingMode: "FIXED_PATTERN" | "VARIABLE_PER_PERIOD";
                             /** @enum {string} */
                             setupStatus: "PARTIAL" | "COMPLETE";
+                            nominalCloseDay: number | null;
+                            nominalDueDay: number | null;
                         } | null;
                         /** @description Saldo por moneda. "unknown" (≠ 0) mientras no exista saldo inicial verificado */
                         balances: {

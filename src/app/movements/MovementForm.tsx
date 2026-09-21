@@ -6,7 +6,7 @@ import { Button, Card, Chip, HelperText, SegmentedButtons, Text, TextInput } fro
 import { z } from 'zod';
 import { ErrorText } from '@/ui-system';
 import {
-  ApiRequestError, addDecimal, formatDate, formatDecimal, formatMoney, isZero, normalizeAmount, parseDate, parseDecimal, parsePeriod, useCategories, useCreateOperation, useReferences, useWallets,
+  ApiRequestError, addDecimal, describeError, formatDate, formatDecimal, formatMoney, isZero, normalizeAmount, parseDate, parseDecimal, parsePeriod, previewInstallments, useCategories, useCreateOperation, useCreatePurchase, useReferences, useWallets,
   type CreateOperationBody, type Dec, type Operation, type OperationFamily, type Wallet,
 } from '@/core-react';
 import { CategoryPickerDialog } from './CategoryPickerDialog';
@@ -31,6 +31,8 @@ const Form = z.object({
   date: z.string().refine((v) => parseDate(v) !== null, 'Fecha inválida (DD/MM/AAAA)'),
   economicPeriod: z.string().refine((v) => v === '' || parsePeriod(v) !== null, 'Período inválido (MM/AAAA)').optional(),
   lines: z.array(Line).min(1),
+  installmentCount: z.string().optional(),
+  installmentAmount: z.string().optional(),
 });
 type Values = z.infer<typeof Form>;
 
@@ -89,7 +91,7 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
     resolver: zodResolver(Form),
     defaultValues: {
       family: draft.family, categoryId: draft.categoryId, concept: draft.concept ?? '', referenceId: draft.referenceId,
-      date: formatDate(todayLocal()), economicPeriod: '', lines: [{ walletId: '', currency: '', amount: '' }],
+      date: formatDate(todayLocal()), economicPeriod: '', lines: [{ walletId: '', currency: '', amount: '' }], installmentCount: '1', installmentAmount: '',
     },
   });
   const { fields, append, remove } = useFieldArray({ control, name: 'lines' });
@@ -102,10 +104,25 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
   const categoryName = (categories.data ?? []).find((c) => c.id === watch('categoryId'))?.name;
   const referenceName = (refs.data ?? []).find((r) => r.id === watch('referenceId'))?.displayName;
   const totals = sumByCurrency(lines.filter((l) => l.currency));
+  // Egreso con una tarjeta: es una COMPRA en cuotas (precio + cantidad + monto de cada cuota; el interés se calcula solo).
+  const firstWallet = walletOf(lines[0]?.walletId ?? '');
+  const isCard = family === 'EXPENSE' && firstWallet?.type === 'CREDIT';
+  const createPurchase = useCreatePurchase(isCard && firstWallet ? firstWallet.id : '');
+  const installmentCount = watch('installmentCount') ?? '1';
+  const installmentAmount = watch('installmentAmount') ?? '';
+  const countNumber = Number(installmentCount);
+  const preview =
+    isCard && lines[0]?.amount
+      ? previewInstallments(normalizeAmount(lines[0].amount) ?? '', countNumber, countNumber > 1 ? (normalizeAmount(installmentAmount) ?? '') : (normalizeAmount(lines[0].amount) ?? ''))
+      : null;
 
-  const selectWallet = (index: number, w: Wallet) => {
+  const selectWallet = (index0: number, w: Wallet) => {
+    let index = index0;
     setExtraWallets((prev) => [...prev, w]);
-    setValue(`lines.${index}.walletId`, w.id, { shouldValidate: true });
+    // Una compra con tarjeta es UNA línea: se descartan las demás.
+    if (w.type === 'CREDIT') setValue('lines', [{ walletId: w.id, currency: '', amount: lines[0]?.amount ?? '' }]);
+    setValue(`lines.${w.type === 'CREDIT' ? 0 : index}.walletId`, w.id, { shouldValidate: true });
+    index = w.type === 'CREDIT' ? 0 : index;
     // Con una sola moneda admitida no hay nada que elegir; con varias se elige (nunca se presume).
     setValue(`lines.${index}.currency`, w.currencies.length === 1 ? (w.currencies[0] ?? '') : '', { shouldValidate: true });
   };
@@ -113,8 +130,25 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
   const onSubmit = handleSubmit(async (values) => {
     setFormError(null);
     try {
+      if (isCard) {
+        const price = normalizeAmount(values.lines[0]!.amount)!;
+        const count = Number(values.installmentCount ?? '1');
+        const each = normalizeAmount(values.installmentAmount ?? '');
+        if (!Number.isInteger(count) || count < 1 || count > 60) return setError('installmentCount', { message: 'Entre 1 y 60 cuotas' });
+        if (count > 1 && !each) return setError('installmentAmount', { message: 'Ingresá el monto de cada cuota' });
+        if (count > 1 && !previewInstallments(price, count, each!)) return setError('installmentAmount', { message: 'Las cuotas suman menos que el precio' });
+        onCreated(
+          await createPurchase.mutateAsync({
+            purchaseDate: parseDate(values.date)!, currency: values.lines[0]!.currency, concept: values.concept, price, installmentCount: count,
+            ...(count > 1 ? { installmentAmount: each! } : {}),
+            ...(values.categoryId ? { categoryId: values.categoryId } : {}), ...(values.referenceId ? { referenceId: values.referenceId } : {}),
+          }),
+        );
+        return;
+      }
       onCreated(await createOperation.mutateAsync(toBody(values)));
     } catch (e) {
+      if (isCard && e instanceof ApiRequestError && e.code !== 'NETWORK') return setFormError(describeError(e));
       if (!(e instanceof ApiRequestError)) return setFormError('Ocurrió un error inesperado. Reintentá.');
       if (e.code === 'NETWORK') return setFormError('No hay conexión con el servidor. Tu borrador se conserva: reintentá cuando vuelva la red.');
       let mapped = 0;
@@ -184,8 +218,9 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
             {referenceName ?? 'Referencia (opcional)'}
           </Button>
 
-          <Text variant="titleSmall">{family === 'INCOME' ? 'Cobros' : 'Pagos'}</Text>
+          <Text variant="titleSmall">{family === 'INCOME' ? 'Cobros' : isCard ? 'Compra con tarjeta' : 'Pagos'}</Text>
           {fields.map((field, index) => {
+            if (isCard && index > 0) return null;
             const w = walletOf(lines[index]?.walletId ?? '');
             const lineErrors = formState.errors.lines?.[index];
             return (
@@ -242,10 +277,44 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
               </Card>
             );
           })}
-          <Button icon="plus" onPress={() => append({ walletId: '', currency: '', amount: '' })} accessibilityLabel="Agregar línea">
-            Agregar línea
-          </Button>
-          {totals.length > 0 && (
+          {!isCard && (
+            <Button icon="plus" onPress={() => append({ walletId: '', currency: '', amount: '' })} accessibilityLabel="Agregar línea">
+              Agregar línea
+            </Button>
+          )}
+          {isCard && (
+            <View style={{ gap: 4 }}>
+              <Controller
+                control={control}
+                name="installmentCount"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput mode="outlined" label="Cantidad de cuotas" accessibilityLabel="Cantidad de cuotas" value={value ?? ''} onChangeText={onChange} onBlur={onBlur} keyboardType="number-pad" error={!!formState.errors.installmentCount} />
+                )}
+              />
+              <HelperText type="error" visible={!!formState.errors.installmentCount}>
+                {formState.errors.installmentCount?.message}
+              </HelperText>
+              {countNumber > 1 && (
+                <>
+                  <Controller
+                    control={control}
+                    name="installmentAmount"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <TextInput mode="outlined" label="Monto de cada cuota" accessibilityLabel="Monto de cada cuota" value={value ?? ''} onChangeText={onChange} onBlur={onBlur} keyboardType="decimal-pad" error={!!formState.errors.installmentAmount} />
+                    )}
+                  />
+                  <HelperText type="error" visible={!!formState.errors.installmentAmount}>
+                    {formState.errors.installmentAmount?.message}
+                  </HelperText>
+                </>
+              )}
+              {preview && lines[0]?.currency && (
+                <Text accessibilityLabel="Resumen de cuotas">{`Precio ${formatMoney(preview.principal, lines[0].currency)} · Interés ${formatMoney(preview.interest, lines[0].currency)} (${preview.percent} %) · Total a pagar ${formatMoney(preview.totalPaid, lines[0].currency)}`}</Text>
+              )}
+              <Text variant="bodySmall">El interés se calcula solo: cantidad × cuota − precio. El gasto es el precio; el interés se registra aparte.</Text>
+            </View>
+          )}
+          {!isCard && totals.length > 0 && (
             <Text accessibilityLabel="Totales por moneda">{`Total: ${totals.map(([c, a]) => formatMoney(a, c)).join(' · ')}`}</Text>
           )}
 
@@ -253,7 +322,7 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
             control={control}
             name="date"
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput mode="outlined" label={family === 'INCOME' ? 'Fecha de cobro (DD/MM/AAAA)' : 'Fecha de pago (DD/MM/AAAA)'} accessibilityLabel="Fecha" value={value} onChangeText={onChange} onBlur={onBlur} error={!!formState.errors.date} />
+              <TextInput mode="outlined" label={family === 'INCOME' ? 'Fecha de cobro (DD/MM/AAAA)' : isCard ? 'Fecha de compra (DD/MM/AAAA)' : 'Fecha de pago (DD/MM/AAAA)'} accessibilityLabel="Fecha" value={value} onChangeText={onChange} onBlur={onBlur} error={!!formState.errors.date} />
             )}
           />
           <HelperText type="error" visible={!!formState.errors.date}>
@@ -290,6 +359,7 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
       <ReferencePickerDialog visible={dialog === 'reference'} onDismiss={() => setDialog(null)} onSelect={(id) => setValue('referenceId', id ?? undefined)} />
       <WalletPickerDialog
         visible={typeof dialog === 'object' && dialog !== null}
+        allowCredit={family === 'EXPENSE'}
         onDismiss={() => setDialog(null)}
         onSelect={(w) => selectWallet(typeof dialog === 'object' && dialog ? dialog.wallet : 0, w)}
       />

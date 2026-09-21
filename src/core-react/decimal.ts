@@ -38,3 +38,18 @@ export function normalizeAmount(text: string): string | null {
   const d = parseDecimal(text);
   return d ? formatDecimal(d) : null;
 }
+
+/** Cociente a `scale` decimales (mitad hacia arriba). Solo para MOSTRAR relaciones, p. ej. la cotización implícita. */
+export function divideDecimal(a: Dec, b: Dec, scale: number): string | null {
+  if (b.units === 0n) return null;
+  const num = a.units * 10n ** BigInt(scale + b.scale);
+  const den = b.units * 10n ** BigInt(a.scale);
+  let q = num / den;
+  if ((num % den) * 2n >= den) q += 1n;
+  return formatDecimal({ units: q, scale });
+}
+
+export const subDecimal = (a: Dec, b: Dec): Dec => {
+  const scale = Math.max(a.scale, b.scale);
+  return { units: a.units * 10n ** BigInt(scale - a.scale) - b.units * 10n ** BigInt(scale - b.scale), scale };
+};

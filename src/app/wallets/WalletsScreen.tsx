@@ -6,7 +6,7 @@ export function WalletsScreen() {
   const router = useRouter();
   return (
     <ScreenContainer bottomInset={80}>
-      <WalletsList onCreate={() => router.push('/wallet-new')} />
+      <WalletsList onCreate={() => router.push('/wallet-new')} onOpen={(w) => router.push({ pathname: '/card/[id]', params: { id: w.id } })} />
     </ScreenContainer>
   );
 }

@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { Surface, Text, useTheme } from 'react-native-paper';
+import { Surface, Text, TouchableRipple, useTheme } from 'react-native-paper';
 import { formatMoney, type Wallet } from '@/core-react';
 import { FONT } from '@/ui-system';
 import { BILLING_LABEL, TYPE_LABEL } from './labels';
@@ -10,11 +10,11 @@ const isZero = (s: string) => /^-?0+(\.0+)?$/.test(s);
  * Tarjeta de billetera (color de marca). El saldo desconocido se muestra como "sin saldo inicial", nunca como 0;
  * si hay movimientos se informa la variación REGISTRADA, que no es el saldo disponible.
  */
-export function WalletCard({ wallet, compact = false }: { wallet: Wallet; compact?: boolean }) {
+export function WalletCard({ wallet, compact = false, onPress }: { wallet: Wallet; compact?: boolean; onPress?: () => void }) {
   const theme = useTheme();
   const subtitle = [TYPE_LABEL[wallet.type], wallet.bankName, wallet.locationText].filter(Boolean).join(' · ');
   const fg = theme.colors.onPrimary;
-  return (
+  const body = (
     <Surface
       elevation={2}
       accessibilityLabel={`Billetera ${wallet.name}`}
@@ -52,6 +52,13 @@ export function WalletCard({ wallet, compact = false }: { wallet: Wallet; compac
         </Text>
       )}
     </Surface>
+  );
+  return onPress ? (
+    <TouchableRipple onPress={onPress} accessibilityRole="button" accessibilityLabel={`Abrir ${wallet.name}`} borderless style={{ borderRadius: theme.roundness * 4 }}>
+      {body}
+    </TouchableRipple>
+  ) : (
+    body
   );
 }
 

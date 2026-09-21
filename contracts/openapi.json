@@ -362,8 +362,168 @@
                             "type": "string",
                             "enum": [
                               "EARNED_INCOME",
-                              "INCURRED_EXPENSE"
+                              "INCURRED_EXPENSE",
+                              "CREDIT_CARD_PURCHASE",
+                              "CARD_CHARGE",
+                              "CARD_SETTLEMENT"
                             ]
+                          },
+                          "cardPurchase": {
+                            "type": "object",
+                            "properties": {
+                              "walletId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "walletName": {
+                                "type": "string"
+                              },
+                              "purchaseDate": {
+                                "type": "string"
+                              },
+                              "currency": {
+                                "type": "string"
+                              },
+                              "principal": {
+                                "type": "string",
+                                "description": "Precio del producto (el gasto)"
+                              },
+                              "interest": {
+                                "type": "string",
+                                "description": "Interés calculado: cantidad × cuota − precio"
+                              },
+                              "totalPaid": {
+                                "type": "string",
+                                "description": "Lo que realmente se paga: precio + interés"
+                              },
+                              "installmentCount": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "installmentAmount": {
+                                "type": "string"
+                              },
+                              "installments": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    "number": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    },
+                                    "amount": {
+                                      "type": "string"
+                                    },
+                                    "state": {
+                                      "type": "string",
+                                      "enum": [
+                                        "ACTIVE",
+                                        "CANCELLED"
+                                      ]
+                                    },
+                                    "periodId": {
+                                      "nullable": true,
+                                      "description": "null = sin resumen asignado (período desconocido)",
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    "cycleLabel": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    },
+                                    "closeDate": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    },
+                                    "dueDate": {
+                                      "nullable": true,
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "number",
+                                    "amount",
+                                    "state",
+                                    "periodId",
+                                    "cycleLabel",
+                                    "closeDate",
+                                    "dueDate"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "walletId",
+                              "walletName",
+                              "purchaseDate",
+                              "currency",
+                              "principal",
+                              "interest",
+                              "totalPaid",
+                              "installmentCount",
+                              "installmentAmount",
+                              "installments"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "cardPayment": {
+                            "type": "object",
+                            "properties": {
+                              "cardWalletId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "periodId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "cycleLabel": {
+                                "type": "string"
+                              },
+                              "currency": {
+                                "type": "string"
+                              },
+                              "appliedAmount": {
+                                "type": "string",
+                                "description": "Deuda que cancela, en la moneda del resumen"
+                              },
+                              "impliedRate": {
+                                "nullable": true,
+                                "description": "Cotización implícita si se pagó en otra moneda (solo informativa)",
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string",
+                                "enum": [
+                                  "ACTIVE",
+                                  "REVERSED"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "cardWalletId",
+                              "periodId",
+                              "cycleLabel",
+                              "currency",
+                              "appliedAmount",
+                              "impliedRate",
+                              "state"
+                            ],
+                            "additionalProperties": false
                           },
                           "categoryId": {
                             "nullable": true,
@@ -433,6 +593,16 @@
                                 "economicPeriod": {
                                   "nullable": true,
                                   "type": "string"
+                                },
+                                "subtype": {
+                                  "nullable": true,
+                                  "description": "null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte",
+                                  "type": "string",
+                                  "enum": [
+                                    "INTEREST",
+                                    "FEE",
+                                    "TAX"
+                                  ]
                                 }
                               },
                               "required": [
@@ -440,7 +610,8 @@
                                 "currency",
                                 "amount",
                                 "economicDate",
-                                "economicPeriod"
+                                "economicPeriod",
+                                "subtype"
                               ],
                               "additionalProperties": false
                             },
@@ -729,8 +900,168 @@
                       "type": "string",
                       "enum": [
                         "EARNED_INCOME",
-                        "INCURRED_EXPENSE"
+                        "INCURRED_EXPENSE",
+                        "CREDIT_CARD_PURCHASE",
+                        "CARD_CHARGE",
+                        "CARD_SETTLEMENT"
                       ]
+                    },
+                    "cardPurchase": {
+                      "type": "object",
+                      "properties": {
+                        "walletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "walletName": {
+                          "type": "string"
+                        },
+                        "purchaseDate": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "principal": {
+                          "type": "string",
+                          "description": "Precio del producto (el gasto)"
+                        },
+                        "interest": {
+                          "type": "string",
+                          "description": "Interés calculado: cantidad × cuota − precio"
+                        },
+                        "totalPaid": {
+                          "type": "string",
+                          "description": "Lo que realmente se paga: precio + interés"
+                        },
+                        "installmentCount": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "installmentAmount": {
+                          "type": "string"
+                        },
+                        "installments": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "number": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "amount": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string",
+                                "enum": [
+                                  "ACTIVE",
+                                  "CANCELLED"
+                                ]
+                              },
+                              "periodId": {
+                                "nullable": true,
+                                "description": "null = sin resumen asignado (período desconocido)",
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "cycleLabel": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "closeDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "dueDate": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "number",
+                              "amount",
+                              "state",
+                              "periodId",
+                              "cycleLabel",
+                              "closeDate",
+                              "dueDate"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "walletId",
+                        "walletName",
+                        "purchaseDate",
+                        "currency",
+                        "principal",
+                        "interest",
+                        "totalPaid",
+                        "installmentCount",
+                        "installmentAmount",
+                        "installments"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "cardPayment": {
+                      "type": "object",
+                      "properties": {
+                        "cardWalletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "periodId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "cycleLabel": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "appliedAmount": {
+                          "type": "string",
+                          "description": "Deuda que cancela, en la moneda del resumen"
+                        },
+                        "impliedRate": {
+                          "nullable": true,
+                          "description": "Cotización implícita si se pagó en otra moneda (solo informativa)",
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "ACTIVE",
+                            "REVERSED"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "cardWalletId",
+                        "periodId",
+                        "cycleLabel",
+                        "currency",
+                        "appliedAmount",
+                        "impliedRate",
+                        "state"
+                      ],
+                      "additionalProperties": false
                     },
                     "categoryId": {
                       "nullable": true,
@@ -800,6 +1131,16 @@
                           "economicPeriod": {
                             "nullable": true,
                             "type": "string"
+                          },
+                          "subtype": {
+                            "nullable": true,
+                            "description": "null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte",
+                            "type": "string",
+                            "enum": [
+                              "INTEREST",
+                              "FEE",
+                              "TAX"
+                            ]
                           }
                         },
                         "required": [
@@ -807,7 +1148,8 @@
                           "currency",
                           "amount",
                           "economicDate",
-                          "economicPeriod"
+                          "economicPeriod",
+                          "subtype"
                         ],
                         "additionalProperties": false
                       },
@@ -927,7 +1269,7 @@
             }
           },
           "501": {
-            "description": "Gasto con tarjeta de crédito o recurrencia: fases posteriores",
+            "description": "Recurrencia: fase posterior",
             "content": {
               "application/json": {
                 "schema": {
@@ -984,8 +1326,168 @@
                       "type": "string",
                       "enum": [
                         "EARNED_INCOME",
-                        "INCURRED_EXPENSE"
+                        "INCURRED_EXPENSE",
+                        "CREDIT_CARD_PURCHASE",
+                        "CARD_CHARGE",
+                        "CARD_SETTLEMENT"
                       ]
+                    },
+                    "cardPurchase": {
+                      "type": "object",
+                      "properties": {
+                        "walletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "walletName": {
+                          "type": "string"
+                        },
+                        "purchaseDate": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "principal": {
+                          "type": "string",
+                          "description": "Precio del producto (el gasto)"
+                        },
+                        "interest": {
+                          "type": "string",
+                          "description": "Interés calculado: cantidad × cuota − precio"
+                        },
+                        "totalPaid": {
+                          "type": "string",
+                          "description": "Lo que realmente se paga: precio + interés"
+                        },
+                        "installmentCount": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "installmentAmount": {
+                          "type": "string"
+                        },
+                        "installments": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "number": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "amount": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string",
+                                "enum": [
+                                  "ACTIVE",
+                                  "CANCELLED"
+                                ]
+                              },
+                              "periodId": {
+                                "nullable": true,
+                                "description": "null = sin resumen asignado (período desconocido)",
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "cycleLabel": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "closeDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "dueDate": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "number",
+                              "amount",
+                              "state",
+                              "periodId",
+                              "cycleLabel",
+                              "closeDate",
+                              "dueDate"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "walletId",
+                        "walletName",
+                        "purchaseDate",
+                        "currency",
+                        "principal",
+                        "interest",
+                        "totalPaid",
+                        "installmentCount",
+                        "installmentAmount",
+                        "installments"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "cardPayment": {
+                      "type": "object",
+                      "properties": {
+                        "cardWalletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "periodId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "cycleLabel": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "appliedAmount": {
+                          "type": "string",
+                          "description": "Deuda que cancela, en la moneda del resumen"
+                        },
+                        "impliedRate": {
+                          "nullable": true,
+                          "description": "Cotización implícita si se pagó en otra moneda (solo informativa)",
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "ACTIVE",
+                            "REVERSED"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "cardWalletId",
+                        "periodId",
+                        "cycleLabel",
+                        "currency",
+                        "appliedAmount",
+                        "impliedRate",
+                        "state"
+                      ],
+                      "additionalProperties": false
                     },
                     "categoryId": {
                       "nullable": true,
@@ -1055,6 +1557,16 @@
                           "economicPeriod": {
                             "nullable": true,
                             "type": "string"
+                          },
+                          "subtype": {
+                            "nullable": true,
+                            "description": "null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte",
+                            "type": "string",
+                            "enum": [
+                              "INTEREST",
+                              "FEE",
+                              "TAX"
+                            ]
                           }
                         },
                         "required": [
@@ -1062,7 +1574,8 @@
                           "currency",
                           "amount",
                           "economicDate",
-                          "economicPeriod"
+                          "economicPeriod",
+                          "subtype"
                         ],
                         "additionalProperties": false
                       },
@@ -1237,8 +1750,168 @@
                       "type": "string",
                       "enum": [
                         "EARNED_INCOME",
-                        "INCURRED_EXPENSE"
+                        "INCURRED_EXPENSE",
+                        "CREDIT_CARD_PURCHASE",
+                        "CARD_CHARGE",
+                        "CARD_SETTLEMENT"
                       ]
+                    },
+                    "cardPurchase": {
+                      "type": "object",
+                      "properties": {
+                        "walletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "walletName": {
+                          "type": "string"
+                        },
+                        "purchaseDate": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "principal": {
+                          "type": "string",
+                          "description": "Precio del producto (el gasto)"
+                        },
+                        "interest": {
+                          "type": "string",
+                          "description": "Interés calculado: cantidad × cuota − precio"
+                        },
+                        "totalPaid": {
+                          "type": "string",
+                          "description": "Lo que realmente se paga: precio + interés"
+                        },
+                        "installmentCount": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "installmentAmount": {
+                          "type": "string"
+                        },
+                        "installments": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "number": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "amount": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string",
+                                "enum": [
+                                  "ACTIVE",
+                                  "CANCELLED"
+                                ]
+                              },
+                              "periodId": {
+                                "nullable": true,
+                                "description": "null = sin resumen asignado (período desconocido)",
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "cycleLabel": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "closeDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "dueDate": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "number",
+                              "amount",
+                              "state",
+                              "periodId",
+                              "cycleLabel",
+                              "closeDate",
+                              "dueDate"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "walletId",
+                        "walletName",
+                        "purchaseDate",
+                        "currency",
+                        "principal",
+                        "interest",
+                        "totalPaid",
+                        "installmentCount",
+                        "installmentAmount",
+                        "installments"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "cardPayment": {
+                      "type": "object",
+                      "properties": {
+                        "cardWalletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "periodId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "cycleLabel": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "appliedAmount": {
+                          "type": "string",
+                          "description": "Deuda que cancela, en la moneda del resumen"
+                        },
+                        "impliedRate": {
+                          "nullable": true,
+                          "description": "Cotización implícita si se pagó en otra moneda (solo informativa)",
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "ACTIVE",
+                            "REVERSED"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "cardWalletId",
+                        "periodId",
+                        "cycleLabel",
+                        "currency",
+                        "appliedAmount",
+                        "impliedRate",
+                        "state"
+                      ],
+                      "additionalProperties": false
                     },
                     "categoryId": {
                       "nullable": true,
@@ -1308,6 +1981,16 @@
                           "economicPeriod": {
                             "nullable": true,
                             "type": "string"
+                          },
+                          "subtype": {
+                            "nullable": true,
+                            "description": "null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte",
+                            "type": "string",
+                            "enum": [
+                              "INTEREST",
+                              "FEE",
+                              "TAX"
+                            ]
                           }
                         },
                         "required": [
@@ -1315,7 +1998,8 @@
                           "currency",
                           "amount",
                           "economicDate",
-                          "economicPeriod"
+                          "economicPeriod",
+                          "subtype"
                         ],
                         "additionalProperties": false
                       },
@@ -1471,8 +2155,168 @@
                       "type": "string",
                       "enum": [
                         "EARNED_INCOME",
-                        "INCURRED_EXPENSE"
+                        "INCURRED_EXPENSE",
+                        "CREDIT_CARD_PURCHASE",
+                        "CARD_CHARGE",
+                        "CARD_SETTLEMENT"
                       ]
+                    },
+                    "cardPurchase": {
+                      "type": "object",
+                      "properties": {
+                        "walletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "walletName": {
+                          "type": "string"
+                        },
+                        "purchaseDate": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "principal": {
+                          "type": "string",
+                          "description": "Precio del producto (el gasto)"
+                        },
+                        "interest": {
+                          "type": "string",
+                          "description": "Interés calculado: cantidad × cuota − precio"
+                        },
+                        "totalPaid": {
+                          "type": "string",
+                          "description": "Lo que realmente se paga: precio + interés"
+                        },
+                        "installmentCount": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "installmentAmount": {
+                          "type": "string"
+                        },
+                        "installments": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "number": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "amount": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string",
+                                "enum": [
+                                  "ACTIVE",
+                                  "CANCELLED"
+                                ]
+                              },
+                              "periodId": {
+                                "nullable": true,
+                                "description": "null = sin resumen asignado (período desconocido)",
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "cycleLabel": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "closeDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "dueDate": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "number",
+                              "amount",
+                              "state",
+                              "periodId",
+                              "cycleLabel",
+                              "closeDate",
+                              "dueDate"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "walletId",
+                        "walletName",
+                        "purchaseDate",
+                        "currency",
+                        "principal",
+                        "interest",
+                        "totalPaid",
+                        "installmentCount",
+                        "installmentAmount",
+                        "installments"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "cardPayment": {
+                      "type": "object",
+                      "properties": {
+                        "cardWalletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "periodId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "cycleLabel": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "appliedAmount": {
+                          "type": "string",
+                          "description": "Deuda que cancela, en la moneda del resumen"
+                        },
+                        "impliedRate": {
+                          "nullable": true,
+                          "description": "Cotización implícita si se pagó en otra moneda (solo informativa)",
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "ACTIVE",
+                            "REVERSED"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "cardWalletId",
+                        "periodId",
+                        "cycleLabel",
+                        "currency",
+                        "appliedAmount",
+                        "impliedRate",
+                        "state"
+                      ],
+                      "additionalProperties": false
                     },
                     "categoryId": {
                       "nullable": true,
@@ -1542,6 +2386,16 @@
                           "economicPeriod": {
                             "nullable": true,
                             "type": "string"
+                          },
+                          "subtype": {
+                            "nullable": true,
+                            "description": "null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte",
+                            "type": "string",
+                            "enum": [
+                              "INTEREST",
+                              "FEE",
+                              "TAX"
+                            ]
                           }
                         },
                         "required": [
@@ -1549,7 +2403,8 @@
                           "currency",
                           "amount",
                           "economicDate",
-                          "economicPeriod"
+                          "economicPeriod",
+                          "subtype"
                         ],
                         "additionalProperties": false
                       },
@@ -1656,6 +2511,3307 @@
         ],
         "tags": [
           "operations"
+        ]
+      }
+    },
+    "/v1/cards/{walletId}/profile": {
+      "get": {
+        "operationId": "CardsController_profile",
+        "parameters": [
+          {
+            "name": "walletId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "walletId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "billingMode": {
+                      "type": "string",
+                      "enum": [
+                        "FIXED_PATTERN",
+                        "VARIABLE_PER_PERIOD"
+                      ]
+                    },
+                    "setupStatus": {
+                      "type": "string",
+                      "enum": [
+                        "PARTIAL",
+                        "COMPLETE"
+                      ]
+                    },
+                    "nominalCloseDay": {
+                      "nullable": true,
+                      "description": "Día de cierre del mes; null = sin cargar (las compras quedan sin período)",
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "nominalDueDay": {
+                      "nullable": true,
+                      "description": "Día de vencimiento del mes; null = sin cargar",
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "walletId",
+                    "billingMode",
+                    "setupStatus",
+                    "nominalCloseDay",
+                    "nominalDueDay"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cards"
+        ]
+      },
+      "patch": {
+        "operationId": "CardsController_patchProfile",
+        "parameters": [
+          {
+            "name": "walletId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nominalCloseDay": {
+                    "nullable": true,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 31
+                  },
+                  "nominalDueDay": {
+                    "nullable": true,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 31
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "walletId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "billingMode": {
+                      "type": "string",
+                      "enum": [
+                        "FIXED_PATTERN",
+                        "VARIABLE_PER_PERIOD"
+                      ]
+                    },
+                    "setupStatus": {
+                      "type": "string",
+                      "enum": [
+                        "PARTIAL",
+                        "COMPLETE"
+                      ]
+                    },
+                    "nominalCloseDay": {
+                      "nullable": true,
+                      "description": "Día de cierre del mes; null = sin cargar (las compras quedan sin período)",
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "nominalDueDay": {
+                      "nullable": true,
+                      "description": "Día de vencimiento del mes; null = sin cargar",
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "walletId",
+                    "billingMode",
+                    "setupStatus",
+                    "nominalCloseDay",
+                    "nominalDueDay"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cards"
+        ]
+      }
+    },
+    "/v1/cards/{walletId}/periods": {
+      "get": {
+        "operationId": "CardsController_overview",
+        "parameters": [
+          {
+            "name": "walletId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "periods": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "period": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "walletId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "cycleLabel": {
+                                "type": "string",
+                                "description": "AAAA-MM del mes de cierre"
+                              },
+                              "openDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "closeDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "dueDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "dateConfidence": {
+                                "type": "string",
+                                "enum": [
+                                  "ESTIMATED",
+                                  "CONFIRMED"
+                                ],
+                                "description": "ESTIMATED = calculada por la app; CONFIRMED = cargada o corregida por el usuario"
+                              },
+                              "version": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "walletId",
+                              "cycleLabel",
+                              "openDate",
+                              "closeDate",
+                              "dueDate",
+                              "dateConfidence",
+                              "version"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "currencies": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "currency": {
+                                  "type": "string"
+                                },
+                                "installments": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "purchaseId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "operationId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "concept": {
+                                        "type": "string"
+                                      },
+                                      "number": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      },
+                                      "count": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      },
+                                      "amount": {
+                                        "type": "string"
+                                      },
+                                      "purchaseDate": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "purchaseId",
+                                      "operationId",
+                                      "concept",
+                                      "number",
+                                      "count",
+                                      "amount",
+                                      "purchaseDate"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "charges": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "INTEREST",
+                                          "FEE",
+                                          "TAX",
+                                          "PENALTY"
+                                        ]
+                                      },
+                                      "amount": {
+                                        "type": "string"
+                                      },
+                                      "description": {
+                                        "nullable": true,
+                                        "type": "string"
+                                      },
+                                      "operationId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "kind",
+                                      "amount",
+                                      "description",
+                                      "operationId"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "computedTotal": {
+                                  "type": "string",
+                                  "description": "Cuotas + cargos, calculado por la app"
+                                },
+                                "bankTotal": {
+                                  "nullable": true,
+                                  "description": "Total REAL informado por el banco",
+                                  "type": "string"
+                                },
+                                "adjustment": {
+                                  "nullable": true,
+                                  "description": "bankTotal − computedTotal: la diferencia queda visible",
+                                  "type": "string"
+                                },
+                                "amountDue": {
+                                  "type": "string",
+                                  "description": "Total a pagar: el del banco si se cargó; si no, el calculado"
+                                },
+                                "paid": {
+                                  "type": "string"
+                                },
+                                "outstanding": {
+                                  "type": "string",
+                                  "description": "Saldo pendiente. Nunca negativo"
+                                }
+                              },
+                              "required": [
+                                "currency",
+                                "installments",
+                                "charges",
+                                "computedTotal",
+                                "bankTotal",
+                                "adjustment",
+                                "amountDue",
+                                "paid",
+                                "outstanding"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "Una deuda por moneda: nunca se mezclan"
+                          }
+                        },
+                        "required": [
+                          "period",
+                          "currencies"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "unassigned": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "purchaseId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "operationId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "concept": {
+                            "type": "string"
+                          },
+                          "number": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "count": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "purchaseDate": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "purchaseId",
+                          "operationId",
+                          "concept",
+                          "number",
+                          "count",
+                          "amount",
+                          "purchaseDate",
+                          "currency"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Cuotas sin resumen asignado (período desconocido)"
+                    }
+                  },
+                  "required": [
+                    "periods",
+                    "unassigned"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cards"
+        ]
+      },
+      "post": {
+        "operationId": "CardsController_createPeriod",
+        "parameters": [
+          {
+            "name": "walletId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "closeDate": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "openDate": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "dueDate": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  }
+                },
+                "required": [
+                  "closeDate"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "walletId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "cycleLabel": {
+                      "type": "string",
+                      "description": "AAAA-MM del mes de cierre"
+                    },
+                    "openDate": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "closeDate": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "dueDate": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "dateConfidence": {
+                      "type": "string",
+                      "enum": [
+                        "ESTIMATED",
+                        "CONFIRMED"
+                      ],
+                      "description": "ESTIMATED = calculada por la app; CONFIRMED = cargada o corregida por el usuario"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "walletId",
+                    "cycleLabel",
+                    "openDate",
+                    "closeDate",
+                    "dueDate",
+                    "dateConfidence",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto (idempotencia, versión, período existente o resumen con pagos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Regla financiera",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cards"
+        ]
+      }
+    },
+    "/v1/cards/{walletId}/periods/{periodId}": {
+      "patch": {
+        "operationId": "CardsController_patchPeriod",
+        "parameters": [
+          {
+            "name": "walletId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "periodId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "openDate": {
+                    "nullable": true,
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "closeDate": {
+                    "nullable": true,
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "dueDate": {
+                    "nullable": true,
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "walletId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "cycleLabel": {
+                      "type": "string",
+                      "description": "AAAA-MM del mes de cierre"
+                    },
+                    "openDate": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "closeDate": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "dueDate": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "dateConfidence": {
+                      "type": "string",
+                      "enum": [
+                        "ESTIMATED",
+                        "CONFIRMED"
+                      ],
+                      "description": "ESTIMATED = calculada por la app; CONFIRMED = cargada o corregida por el usuario"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "walletId",
+                    "cycleLabel",
+                    "openDate",
+                    "closeDate",
+                    "dueDate",
+                    "dateConfidence",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto (idempotencia, versión, período existente o resumen con pagos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Regla financiera",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cards"
+        ]
+      }
+    },
+    "/v1/cards/{walletId}/periods/{periodId}/statement": {
+      "get": {
+        "operationId": "CardsController_statement",
+        "parameters": [
+          {
+            "name": "walletId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "periodId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "period": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "walletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "cycleLabel": {
+                          "type": "string",
+                          "description": "AAAA-MM del mes de cierre"
+                        },
+                        "openDate": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "closeDate": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "dueDate": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "dateConfidence": {
+                          "type": "string",
+                          "enum": [
+                            "ESTIMATED",
+                            "CONFIRMED"
+                          ],
+                          "description": "ESTIMATED = calculada por la app; CONFIRMED = cargada o corregida por el usuario"
+                        },
+                        "version": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "walletId",
+                        "cycleLabel",
+                        "openDate",
+                        "closeDate",
+                        "dueDate",
+                        "dateConfidence",
+                        "version"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "currencies": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "currency": {
+                            "type": "string"
+                          },
+                          "installments": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "purchaseId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "operationId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "concept": {
+                                  "type": "string"
+                                },
+                                "number": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "count": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "amount": {
+                                  "type": "string"
+                                },
+                                "purchaseDate": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "purchaseId",
+                                "operationId",
+                                "concept",
+                                "number",
+                                "count",
+                                "amount",
+                                "purchaseDate"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "charges": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "INTEREST",
+                                    "FEE",
+                                    "TAX",
+                                    "PENALTY"
+                                  ]
+                                },
+                                "amount": {
+                                  "type": "string"
+                                },
+                                "description": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "operationId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "kind",
+                                "amount",
+                                "description",
+                                "operationId"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "computedTotal": {
+                            "type": "string",
+                            "description": "Cuotas + cargos, calculado por la app"
+                          },
+                          "bankTotal": {
+                            "nullable": true,
+                            "description": "Total REAL informado por el banco",
+                            "type": "string"
+                          },
+                          "adjustment": {
+                            "nullable": true,
+                            "description": "bankTotal − computedTotal: la diferencia queda visible",
+                            "type": "string"
+                          },
+                          "amountDue": {
+                            "type": "string",
+                            "description": "Total a pagar: el del banco si se cargó; si no, el calculado"
+                          },
+                          "paid": {
+                            "type": "string"
+                          },
+                          "outstanding": {
+                            "type": "string",
+                            "description": "Saldo pendiente. Nunca negativo"
+                          }
+                        },
+                        "required": [
+                          "currency",
+                          "installments",
+                          "charges",
+                          "computedTotal",
+                          "bankTotal",
+                          "adjustment",
+                          "amountDue",
+                          "paid",
+                          "outstanding"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Una deuda por moneda: nunca se mezclan"
+                    }
+                  },
+                  "required": [
+                    "period",
+                    "currencies"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cards"
+        ]
+      }
+    },
+    "/v1/cards/{walletId}/periods/{periodId}/bank-totals/{currency}": {
+      "put": {
+        "operationId": "CardsController_setBankTotal",
+        "parameters": [
+          {
+            "name": "walletId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "periodId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "currency",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bankTotal": {
+                    "nullable": true,
+                    "description": "null = quitar el total del banco y volver al calculado",
+                    "type": "string",
+                    "pattern": "^\\d+(\\.\\d{1,8})?$"
+                  }
+                },
+                "required": [
+                  "bankTotal"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "period": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "walletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "cycleLabel": {
+                          "type": "string",
+                          "description": "AAAA-MM del mes de cierre"
+                        },
+                        "openDate": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "closeDate": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "dueDate": {
+                          "nullable": true,
+                          "type": "string"
+                        },
+                        "dateConfidence": {
+                          "type": "string",
+                          "enum": [
+                            "ESTIMATED",
+                            "CONFIRMED"
+                          ],
+                          "description": "ESTIMATED = calculada por la app; CONFIRMED = cargada o corregida por el usuario"
+                        },
+                        "version": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "walletId",
+                        "cycleLabel",
+                        "openDate",
+                        "closeDate",
+                        "dueDate",
+                        "dateConfidence",
+                        "version"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "currencies": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "currency": {
+                            "type": "string"
+                          },
+                          "installments": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "purchaseId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "operationId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "concept": {
+                                  "type": "string"
+                                },
+                                "number": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "count": {
+                                  "type": "integer",
+                                  "minimum": -9007199254740991,
+                                  "maximum": 9007199254740991
+                                },
+                                "amount": {
+                                  "type": "string"
+                                },
+                                "purchaseDate": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "purchaseId",
+                                "operationId",
+                                "concept",
+                                "number",
+                                "count",
+                                "amount",
+                                "purchaseDate"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "charges": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "INTEREST",
+                                    "FEE",
+                                    "TAX",
+                                    "PENALTY"
+                                  ]
+                                },
+                                "amount": {
+                                  "type": "string"
+                                },
+                                "description": {
+                                  "nullable": true,
+                                  "type": "string"
+                                },
+                                "operationId": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "kind",
+                                "amount",
+                                "description",
+                                "operationId"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "computedTotal": {
+                            "type": "string",
+                            "description": "Cuotas + cargos, calculado por la app"
+                          },
+                          "bankTotal": {
+                            "nullable": true,
+                            "description": "Total REAL informado por el banco",
+                            "type": "string"
+                          },
+                          "adjustment": {
+                            "nullable": true,
+                            "description": "bankTotal − computedTotal: la diferencia queda visible",
+                            "type": "string"
+                          },
+                          "amountDue": {
+                            "type": "string",
+                            "description": "Total a pagar: el del banco si se cargó; si no, el calculado"
+                          },
+                          "paid": {
+                            "type": "string"
+                          },
+                          "outstanding": {
+                            "type": "string",
+                            "description": "Saldo pendiente. Nunca negativo"
+                          }
+                        },
+                        "required": [
+                          "currency",
+                          "installments",
+                          "charges",
+                          "computedTotal",
+                          "bankTotal",
+                          "adjustment",
+                          "amountDue",
+                          "paid",
+                          "outstanding"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Una deuda por moneda: nunca se mezclan"
+                    }
+                  },
+                  "required": [
+                    "period",
+                    "currencies"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Regla financiera",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cards"
+        ]
+      }
+    },
+    "/v1/cards/{walletId}/periods/{periodId}/charges": {
+      "post": {
+        "operationId": "CardsController_charge",
+        "parameters": [
+          {
+            "name": "walletId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "periodId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Mismo key+contenido => misma respuesta sin duplicar; contenido distinto => 409",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "INTEREST",
+                      "FEE",
+                      "TAX",
+                      "PENALTY"
+                    ],
+                    "description": "PENALTY = multa o costo de refinanciación"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9]{1,9}$"
+                  },
+                  "amount": {
+                    "type": "string",
+                    "pattern": "^\\d+(\\.\\d{1,8})?$"
+                  },
+                  "date": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "kind",
+                  "currency",
+                  "amount",
+                  "date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "family": {
+                      "type": "string",
+                      "enum": [
+                        "INCOME",
+                        "EXPENSE"
+                      ]
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "EARNED_INCOME",
+                        "INCURRED_EXPENSE",
+                        "CREDIT_CARD_PURCHASE",
+                        "CARD_CHARGE",
+                        "CARD_SETTLEMENT"
+                      ]
+                    },
+                    "cardPurchase": {
+                      "type": "object",
+                      "properties": {
+                        "walletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "walletName": {
+                          "type": "string"
+                        },
+                        "purchaseDate": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "principal": {
+                          "type": "string",
+                          "description": "Precio del producto (el gasto)"
+                        },
+                        "interest": {
+                          "type": "string",
+                          "description": "Interés calculado: cantidad × cuota − precio"
+                        },
+                        "totalPaid": {
+                          "type": "string",
+                          "description": "Lo que realmente se paga: precio + interés"
+                        },
+                        "installmentCount": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "installmentAmount": {
+                          "type": "string"
+                        },
+                        "installments": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "number": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "amount": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string",
+                                "enum": [
+                                  "ACTIVE",
+                                  "CANCELLED"
+                                ]
+                              },
+                              "periodId": {
+                                "nullable": true,
+                                "description": "null = sin resumen asignado (período desconocido)",
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "cycleLabel": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "closeDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "dueDate": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "number",
+                              "amount",
+                              "state",
+                              "periodId",
+                              "cycleLabel",
+                              "closeDate",
+                              "dueDate"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "walletId",
+                        "walletName",
+                        "purchaseDate",
+                        "currency",
+                        "principal",
+                        "interest",
+                        "totalPaid",
+                        "installmentCount",
+                        "installmentAmount",
+                        "installments"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "cardPayment": {
+                      "type": "object",
+                      "properties": {
+                        "cardWalletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "periodId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "cycleLabel": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "appliedAmount": {
+                          "type": "string",
+                          "description": "Deuda que cancela, en la moneda del resumen"
+                        },
+                        "impliedRate": {
+                          "nullable": true,
+                          "description": "Cotización implícita si se pagó en otra moneda (solo informativa)",
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "ACTIVE",
+                            "REVERSED"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "cardWalletId",
+                        "periodId",
+                        "cycleLabel",
+                        "currency",
+                        "appliedAmount",
+                        "impliedRate",
+                        "state"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "categoryId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "categoryName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "concept": {
+                      "type": "string"
+                    },
+                    "referenceId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "referenceName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "economicPeriod": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "CONFIRMED",
+                        "REVERSED"
+                      ]
+                    },
+                    "recordedAt": {
+                      "type": "string",
+                      "description": "Instante ISO 8601"
+                    },
+                    "economicComponents": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "direction": {
+                            "type": "string",
+                            "enum": [
+                              "INCOME",
+                              "EXPENSE"
+                            ]
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "economicDate": {
+                            "nullable": true,
+                            "description": "Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy)",
+                            "type": "string"
+                          },
+                          "economicPeriod": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "subtype": {
+                            "nullable": true,
+                            "description": "null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte",
+                            "type": "string",
+                            "enum": [
+                              "INTEREST",
+                              "FEE",
+                              "TAX"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "direction",
+                          "currency",
+                          "amount",
+                          "economicDate",
+                          "economicPeriod",
+                          "subtype"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez"
+                    },
+                    "settlements": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "walletId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "walletName": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string",
+                            "description": "Magnitud positiva; el sentido lo da la familia"
+                          },
+                          "effectiveDate": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "walletId",
+                          "walletName",
+                          "currency",
+                          "amount",
+                          "effectiveDate"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja)"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "family",
+                    "kind",
+                    "categoryId",
+                    "categoryName",
+                    "concept",
+                    "referenceId",
+                    "referenceName",
+                    "economicPeriod",
+                    "note",
+                    "state",
+                    "recordedAt",
+                    "economicComponents",
+                    "settlements",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto (idempotencia, versión, período existente o resumen con pagos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Regla financiera",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cards"
+        ]
+      }
+    },
+    "/v1/cards/{walletId}/periods/{periodId}/payments": {
+      "post": {
+        "operationId": "CardsController_pay",
+        "parameters": [
+          {
+            "name": "walletId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "periodId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Mismo key+contenido => misma respuesta sin duplicar; contenido distinto => 409",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "currency": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9]{1,9}$",
+                    "description": "Moneda de la deuda del resumen que se cancela"
+                  },
+                  "appliedAmount": {
+                    "type": "string",
+                    "pattern": "^\\d+(\\.\\d{1,8})?$",
+                    "description": "Cuánta deuda cancela, en la moneda del resumen"
+                  },
+                  "walletId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                    "description": "Billetera (efectivo o débito) de la que sale el dinero"
+                  },
+                  "walletCurrency": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9]{1,9}$"
+                  },
+                  "walletAmount": {
+                    "type": "string",
+                    "pattern": "^\\d+(\\.\\d{1,8})?$",
+                    "description": "Total que salió de la billetera, impuestos incluidos"
+                  },
+                  "taxAmount": {
+                    "description": "Parte de walletAmount que son impuestos (gasto aparte)",
+                    "type": "string",
+                    "pattern": "^\\d+(\\.\\d{1,8})?$"
+                  },
+                  "effectiveDate": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  }
+                },
+                "required": [
+                  "currency",
+                  "appliedAmount",
+                  "walletId",
+                  "walletCurrency",
+                  "walletAmount",
+                  "effectiveDate"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "family": {
+                      "type": "string",
+                      "enum": [
+                        "INCOME",
+                        "EXPENSE"
+                      ]
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "EARNED_INCOME",
+                        "INCURRED_EXPENSE",
+                        "CREDIT_CARD_PURCHASE",
+                        "CARD_CHARGE",
+                        "CARD_SETTLEMENT"
+                      ]
+                    },
+                    "cardPurchase": {
+                      "type": "object",
+                      "properties": {
+                        "walletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "walletName": {
+                          "type": "string"
+                        },
+                        "purchaseDate": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "principal": {
+                          "type": "string",
+                          "description": "Precio del producto (el gasto)"
+                        },
+                        "interest": {
+                          "type": "string",
+                          "description": "Interés calculado: cantidad × cuota − precio"
+                        },
+                        "totalPaid": {
+                          "type": "string",
+                          "description": "Lo que realmente se paga: precio + interés"
+                        },
+                        "installmentCount": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "installmentAmount": {
+                          "type": "string"
+                        },
+                        "installments": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "number": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "amount": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string",
+                                "enum": [
+                                  "ACTIVE",
+                                  "CANCELLED"
+                                ]
+                              },
+                              "periodId": {
+                                "nullable": true,
+                                "description": "null = sin resumen asignado (período desconocido)",
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "cycleLabel": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "closeDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "dueDate": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "number",
+                              "amount",
+                              "state",
+                              "periodId",
+                              "cycleLabel",
+                              "closeDate",
+                              "dueDate"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "walletId",
+                        "walletName",
+                        "purchaseDate",
+                        "currency",
+                        "principal",
+                        "interest",
+                        "totalPaid",
+                        "installmentCount",
+                        "installmentAmount",
+                        "installments"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "cardPayment": {
+                      "type": "object",
+                      "properties": {
+                        "cardWalletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "periodId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "cycleLabel": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "appliedAmount": {
+                          "type": "string",
+                          "description": "Deuda que cancela, en la moneda del resumen"
+                        },
+                        "impliedRate": {
+                          "nullable": true,
+                          "description": "Cotización implícita si se pagó en otra moneda (solo informativa)",
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "ACTIVE",
+                            "REVERSED"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "cardWalletId",
+                        "periodId",
+                        "cycleLabel",
+                        "currency",
+                        "appliedAmount",
+                        "impliedRate",
+                        "state"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "categoryId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "categoryName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "concept": {
+                      "type": "string"
+                    },
+                    "referenceId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "referenceName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "economicPeriod": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "CONFIRMED",
+                        "REVERSED"
+                      ]
+                    },
+                    "recordedAt": {
+                      "type": "string",
+                      "description": "Instante ISO 8601"
+                    },
+                    "economicComponents": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "direction": {
+                            "type": "string",
+                            "enum": [
+                              "INCOME",
+                              "EXPENSE"
+                            ]
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "economicDate": {
+                            "nullable": true,
+                            "description": "Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy)",
+                            "type": "string"
+                          },
+                          "economicPeriod": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "subtype": {
+                            "nullable": true,
+                            "description": "null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte",
+                            "type": "string",
+                            "enum": [
+                              "INTEREST",
+                              "FEE",
+                              "TAX"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "direction",
+                          "currency",
+                          "amount",
+                          "economicDate",
+                          "economicPeriod",
+                          "subtype"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez"
+                    },
+                    "settlements": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "walletId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "walletName": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string",
+                            "description": "Magnitud positiva; el sentido lo da la familia"
+                          },
+                          "effectiveDate": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "walletId",
+                          "walletName",
+                          "currency",
+                          "amount",
+                          "effectiveDate"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja)"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "family",
+                    "kind",
+                    "categoryId",
+                    "categoryName",
+                    "concept",
+                    "referenceId",
+                    "referenceName",
+                    "economicPeriod",
+                    "note",
+                    "state",
+                    "recordedAt",
+                    "economicComponents",
+                    "settlements",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto (idempotencia, versión, período existente o resumen con pagos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Regla financiera",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cards"
+        ]
+      }
+    },
+    "/v1/cards/{walletId}/installments/{installmentId}/move": {
+      "post": {
+        "operationId": "CardsController_move",
+        "parameters": [
+          {
+            "name": "walletId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "installmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "periodId": {
+                    "nullable": true,
+                    "description": "null = dejarla sin resumen asignado",
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "periodId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "periods": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "period": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "walletId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "cycleLabel": {
+                                "type": "string",
+                                "description": "AAAA-MM del mes de cierre"
+                              },
+                              "openDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "closeDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "dueDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "dateConfidence": {
+                                "type": "string",
+                                "enum": [
+                                  "ESTIMATED",
+                                  "CONFIRMED"
+                                ],
+                                "description": "ESTIMATED = calculada por la app; CONFIRMED = cargada o corregida por el usuario"
+                              },
+                              "version": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "walletId",
+                              "cycleLabel",
+                              "openDate",
+                              "closeDate",
+                              "dueDate",
+                              "dateConfidence",
+                              "version"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "currencies": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "currency": {
+                                  "type": "string"
+                                },
+                                "installments": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "purchaseId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "operationId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "concept": {
+                                        "type": "string"
+                                      },
+                                      "number": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      },
+                                      "count": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      },
+                                      "amount": {
+                                        "type": "string"
+                                      },
+                                      "purchaseDate": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "purchaseId",
+                                      "operationId",
+                                      "concept",
+                                      "number",
+                                      "count",
+                                      "amount",
+                                      "purchaseDate"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "charges": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "INTEREST",
+                                          "FEE",
+                                          "TAX",
+                                          "PENALTY"
+                                        ]
+                                      },
+                                      "amount": {
+                                        "type": "string"
+                                      },
+                                      "description": {
+                                        "nullable": true,
+                                        "type": "string"
+                                      },
+                                      "operationId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "kind",
+                                      "amount",
+                                      "description",
+                                      "operationId"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "computedTotal": {
+                                  "type": "string",
+                                  "description": "Cuotas + cargos, calculado por la app"
+                                },
+                                "bankTotal": {
+                                  "nullable": true,
+                                  "description": "Total REAL informado por el banco",
+                                  "type": "string"
+                                },
+                                "adjustment": {
+                                  "nullable": true,
+                                  "description": "bankTotal − computedTotal: la diferencia queda visible",
+                                  "type": "string"
+                                },
+                                "amountDue": {
+                                  "type": "string",
+                                  "description": "Total a pagar: el del banco si se cargó; si no, el calculado"
+                                },
+                                "paid": {
+                                  "type": "string"
+                                },
+                                "outstanding": {
+                                  "type": "string",
+                                  "description": "Saldo pendiente. Nunca negativo"
+                                }
+                              },
+                              "required": [
+                                "currency",
+                                "installments",
+                                "charges",
+                                "computedTotal",
+                                "bankTotal",
+                                "adjustment",
+                                "amountDue",
+                                "paid",
+                                "outstanding"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "description": "Una deuda por moneda: nunca se mezclan"
+                          }
+                        },
+                        "required": [
+                          "period",
+                          "currencies"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "unassigned": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "purchaseId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "operationId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "concept": {
+                            "type": "string"
+                          },
+                          "number": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "count": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "purchaseDate": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "purchaseId",
+                          "operationId",
+                          "concept",
+                          "number",
+                          "count",
+                          "amount",
+                          "purchaseDate",
+                          "currency"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "Cuotas sin resumen asignado (período desconocido)"
+                    }
+                  },
+                  "required": [
+                    "periods",
+                    "unassigned"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Regla financiera",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cards"
+        ]
+      }
+    },
+    "/v1/cards/{walletId}/purchases": {
+      "post": {
+        "operationId": "CardsController_purchase",
+        "parameters": [
+          {
+            "name": "walletId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Mismo key+contenido => misma respuesta sin duplicar; contenido distinto => 409",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "purchaseDate": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "currency": {
+                    "type": "string",
+                    "pattern": "^[A-Z][A-Z0-9]{1,9}$"
+                  },
+                  "concept": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "categoryId": {
+                    "nullable": true,
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "referenceId": {
+                    "nullable": true,
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "note": {
+                    "nullable": true,
+                    "type": "string",
+                    "maxLength": 500
+                  },
+                  "price": {
+                    "type": "string",
+                    "pattern": "^\\d+(\\.\\d{1,8})?$",
+                    "description": "Precio del producto: es el gasto"
+                  },
+                  "installmentCount": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 60
+                  },
+                  "installmentAmount": {
+                    "description": "Monto de cada cuota. Obligatorio si hay más de una cuota; el interés se calcula solo",
+                    "type": "string",
+                    "pattern": "^\\d+(\\.\\d{1,8})?$"
+                  }
+                },
+                "required": [
+                  "purchaseDate",
+                  "currency",
+                  "concept",
+                  "price",
+                  "installmentCount"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "family": {
+                      "type": "string",
+                      "enum": [
+                        "INCOME",
+                        "EXPENSE"
+                      ]
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "EARNED_INCOME",
+                        "INCURRED_EXPENSE",
+                        "CREDIT_CARD_PURCHASE",
+                        "CARD_CHARGE",
+                        "CARD_SETTLEMENT"
+                      ]
+                    },
+                    "cardPurchase": {
+                      "type": "object",
+                      "properties": {
+                        "walletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "walletName": {
+                          "type": "string"
+                        },
+                        "purchaseDate": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "principal": {
+                          "type": "string",
+                          "description": "Precio del producto (el gasto)"
+                        },
+                        "interest": {
+                          "type": "string",
+                          "description": "Interés calculado: cantidad × cuota − precio"
+                        },
+                        "totalPaid": {
+                          "type": "string",
+                          "description": "Lo que realmente se paga: precio + interés"
+                        },
+                        "installmentCount": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "installmentAmount": {
+                          "type": "string"
+                        },
+                        "installments": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "number": {
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "amount": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string",
+                                "enum": [
+                                  "ACTIVE",
+                                  "CANCELLED"
+                                ]
+                              },
+                              "periodId": {
+                                "nullable": true,
+                                "description": "null = sin resumen asignado (período desconocido)",
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "cycleLabel": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "closeDate": {
+                                "nullable": true,
+                                "type": "string"
+                              },
+                              "dueDate": {
+                                "nullable": true,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "number",
+                              "amount",
+                              "state",
+                              "periodId",
+                              "cycleLabel",
+                              "closeDate",
+                              "dueDate"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "walletId",
+                        "walletName",
+                        "purchaseDate",
+                        "currency",
+                        "principal",
+                        "interest",
+                        "totalPaid",
+                        "installmentCount",
+                        "installmentAmount",
+                        "installments"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "cardPayment": {
+                      "type": "object",
+                      "properties": {
+                        "cardWalletId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "periodId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "cycleLabel": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "appliedAmount": {
+                          "type": "string",
+                          "description": "Deuda que cancela, en la moneda del resumen"
+                        },
+                        "impliedRate": {
+                          "nullable": true,
+                          "description": "Cotización implícita si se pagó en otra moneda (solo informativa)",
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "ACTIVE",
+                            "REVERSED"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "cardWalletId",
+                        "periodId",
+                        "cycleLabel",
+                        "currency",
+                        "appliedAmount",
+                        "impliedRate",
+                        "state"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "categoryId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "categoryName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "concept": {
+                      "type": "string"
+                    },
+                    "referenceId": {
+                      "nullable": true,
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "referenceName": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "economicPeriod": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "note": {
+                      "nullable": true,
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "CONFIRMED",
+                        "REVERSED"
+                      ]
+                    },
+                    "recordedAt": {
+                      "type": "string",
+                      "description": "Instante ISO 8601"
+                    },
+                    "economicComponents": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "direction": {
+                            "type": "string",
+                            "enum": [
+                              "INCOME",
+                              "EXPENSE"
+                            ]
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string"
+                          },
+                          "economicDate": {
+                            "nullable": true,
+                            "description": "Fecha en que se ganó/gastó; null = desconocida (no se rellena con hoy)",
+                            "type": "string"
+                          },
+                          "economicPeriod": {
+                            "nullable": true,
+                            "type": "string"
+                          },
+                          "subtype": {
+                            "nullable": true,
+                            "description": "null = importe ordinario (el precio). INTEREST/FEE/TAX se muestran aparte",
+                            "type": "string",
+                            "enum": [
+                              "INTEREST",
+                              "FEE",
+                              "TAX"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "direction",
+                          "currency",
+                          "amount",
+                          "economicDate",
+                          "economicPeriod",
+                          "subtype"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO GANADO/GASTADO por moneda (economía). Se cuenta una sola vez"
+                    },
+                    "settlements": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "walletId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "walletName": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "string",
+                            "description": "Magnitud positiva; el sentido lo da la familia"
+                          },
+                          "effectiveDate": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "walletId",
+                          "walletName",
+                          "currency",
+                          "amount",
+                          "effectiveDate"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "description": "LO EFECTIVAMENTE COBRADO/PAGADO por billetera (caja)"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "family",
+                    "kind",
+                    "categoryId",
+                    "categoryName",
+                    "concept",
+                    "referenceId",
+                    "referenceName",
+                    "economicPeriod",
+                    "note",
+                    "state",
+                    "recordedAt",
+                    "economicComponents",
+                    "settlements",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sin sesión válida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe o no es del usuario (404 uniforme)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto (idempotencia, versión, período existente o resumen con pagos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Regla financiera",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "cards"
         ]
       }
     },
@@ -1933,11 +6089,25 @@
                                   "PARTIAL",
                                   "COMPLETE"
                                 ]
+                              },
+                              "nominalCloseDay": {
+                                "nullable": true,
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
+                              },
+                              "nominalDueDay": {
+                                "nullable": true,
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
                               }
                             },
                             "required": [
                               "billingMode",
-                              "setupStatus"
+                              "setupStatus",
+                              "nominalCloseDay",
+                              "nominalDueDay"
                             ],
                             "additionalProperties": false
                           },
@@ -2086,6 +6256,16 @@
                           "FIXED_PATTERN",
                           "VARIABLE_PER_PERIOD"
                         ]
+                      },
+                      "nominalCloseDay": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 31
+                      },
+                      "nominalDueDay": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 31
                       }
                     },
                     "required": [
@@ -2174,11 +6354,25 @@
                             "PARTIAL",
                             "COMPLETE"
                           ]
+                        },
+                        "nominalCloseDay": {
+                          "nullable": true,
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "nominalDueDay": {
+                          "nullable": true,
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
                         }
                       },
                       "required": [
                         "billingMode",
-                        "setupStatus"
+                        "setupStatus",
+                        "nominalCloseDay",
+                        "nominalDueDay"
                       ],
                       "additionalProperties": false
                     },
@@ -2380,11 +6574,25 @@
                             "PARTIAL",
                             "COMPLETE"
                           ]
+                        },
+                        "nominalCloseDay": {
+                          "nullable": true,
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "nominalDueDay": {
+                          "nullable": true,
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
                         }
                       },
                       "required": [
                         "billingMode",
-                        "setupStatus"
+                        "setupStatus",
+                        "nominalCloseDay",
+                        "nominalDueDay"
                       ],
                       "additionalProperties": false
                     },
@@ -2600,11 +6808,25 @@
                             "PARTIAL",
                             "COMPLETE"
                           ]
+                        },
+                        "nominalCloseDay": {
+                          "nullable": true,
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "nominalDueDay": {
+                          "nullable": true,
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
                         }
                       },
                       "required": [
                         "billingMode",
-                        "setupStatus"
+                        "setupStatus",
+                        "nominalCloseDay",
+                        "nominalDueDay"
                       ],
                       "additionalProperties": false
                     },
@@ -4032,7 +8254,15 @@
               "CATEGORY_ARCHIVED",
               "WALLET_ARCHIVED",
               "OPERATION_ALREADY_REVERSED",
-              "INVALID_AMOUNT"
+              "INVALID_AMOUNT",
+              "STATEMENT_HAS_PAYMENTS",
+              "INVALID_INSTALLMENTS",
+              "PERIOD_ALREADY_EXISTS",
+              "STATEMENT_TOTAL_BELOW_PAID",
+              "NOTHING_TO_PAY",
+              "INVALID_PERIOD_DATES",
+              "NOT_A_CREDIT_CARD",
+              "CARD_PURCHASE_ENDPOINT_REQUIRED"
             ]
           },
           "message": {

@@ -1,11 +1,11 @@
 import { ScrollView, View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
-import { useWallets } from '@/core-react';
+import { useWallets, type Wallet } from '@/core-react';
 import { EmptyState } from '@/layout';
 import { WalletCard } from './WalletCard';
 
 /** Billeteras con estados de carga, error y vacío. `carousel` (Inicio) las muestra en horizontal; `list`, apiladas. */
-export function WalletsList({ onCreate, variant = 'list' }: { onCreate: () => void; variant?: 'list' | 'carousel' }) {
+export function WalletsList({ onCreate, onOpen, variant = 'list' }: { onCreate: () => void; onOpen?: (wallet: Wallet) => void; variant?: 'list' | 'carousel' }) {
   const wallets = useWallets();
   if (wallets.isPending) return <Text>Cargando billeteras…</Text>;
   if (wallets.isError) {
@@ -26,7 +26,7 @@ export function WalletsList({ onCreate, variant = 'list' }: { onCreate: () => vo
       </View>
     );
   }
-  const cards = wallets.data.map((w) => <WalletCard key={w.id} wallet={w} compact={variant === 'carousel'} />);
+  const cards = wallets.data.map((w) => <WalletCard key={w.id} wallet={w} compact={variant === 'carousel'} {...(onOpen && w.type === 'CREDIT' ? { onPress: () => onOpen(w) } : {})} />);
   return (
     <View style={{ gap: 12 }}>
       {variant === 'carousel' ? (

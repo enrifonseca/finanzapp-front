@@ -35,6 +35,7 @@ function RootNavigator() {
         <Stack.Screen name="wallet-new" />
         <Stack.Screen name="movement-new" />
         <Stack.Screen name="operation" />
+        <Stack.Screen name="card" />
       </Stack.Protected>
       <Stack.Protected guard={needsOnboarding}>
         <Stack.Screen name="onboarding" />

@@ -125,6 +125,44 @@ describe('WalletForm: alta y bodies', () => {
   });
 });
 
+describe('WalletForm: tarjeta con día de cierre y vencimiento OPCIONALES', () => {
+  const credit = async (closeDay: string, dueDay: string) => {
+    const { posted } = api();
+    const created = await setup();
+    await type('Nombre de la billetera', 'Master');
+    await press('Tipo Crédito');
+    await press('Moneda ARS');
+    await press('Elegir banco');
+    fireEvent.press(await screen.findByText('+ Crear banco'));
+    await type('Nombre del banco', 'BBVA');
+    fireEvent.press(await screen.findByText('Crear y elegir'));
+    await waitFor(() => expect(screen.getByLabelText('Elegir banco')).toHaveTextContent('BBVA', { exact: false }));
+    await press('Fechas de cierre y vencimiento fijas');
+    if (closeDay) await type('Día de cierre', closeDay);
+    if (dueDay) await type('Día de vencimiento', dueDay);
+    await submit();
+    return { posted, created };
+  };
+
+  it('se pueden dejar vacíos: la tarjeta se crea igual, sin días (las compras quedarán sin período)', async () => {
+    const { posted, created } = await credit('', '');
+    await waitFor(() => expect(created).toHaveLength(1));
+    expect(posted[0]!.body.creditProfile).toEqual({ billingMode: 'FIXED_PATTERN' });
+  });
+
+  it('con días, se envían como números', async () => {
+    const { posted, created } = await credit('20', '5');
+    await waitFor(() => expect(created).toHaveLength(1));
+    expect(posted[0]!.body.creditProfile).toEqual({ billingMode: 'FIXED_PATTERN', nominalCloseDay: 20, nominalDueDay: 5 });
+  });
+
+  it('valida 1 a 31 sin llamar al backend', async () => {
+    const { posted } = await credit('32', '0');
+    await waitFor(() => expect(screen.getAllByText('Día entre 1 y 31').length).toBeGreaterThan(0));
+    expect(posted).toEqual([]);
+  });
+});
+
 describe('WalletForm: creación contextual sin perder el borrador', () => {
   it('crear un banco desde el selector deja el nombre y el tipo ya ingresados y selecciona el banco', async () => {
     api();

@@ -8,12 +8,12 @@ import { TYPE_LABEL } from '../wallets/labels';
 /**
  * Selector de billetera de una línea, con alta contextual ANIDADA: "+ Crear billetera" abre el formulario de
  * billetera (que a su vez puede crear banco/moneda) y al terminar vuelve a la línea con la billetera elegida.
- * Las billeteras de crédito no se ofrecen: las compras con tarjeta llegan en la Fase 4.
+ * El crédito se ofrece solo para egresos (compra en cuotas); un ingreso nunca se cobra en una tarjeta.
  */
-export function WalletPickerDialog({ visible, onDismiss, onSelect }: { visible: boolean; onDismiss: () => void; onSelect: (w: Wallet) => void }) {
+export function WalletPickerDialog({ visible, onDismiss, onSelect, allowCredit = false }: { visible: boolean; onDismiss: () => void; onSelect: (w: Wallet) => void; allowCredit?: boolean }) {
   const wallets = useWallets();
   const [creating, setCreating] = useState(false);
-  const usable = (wallets.data ?? []).filter((w) => w.type !== 'CREDIT');
+  const usable = (wallets.data ?? []).filter((w) => allowCredit || w.type !== 'CREDIT');
 
   const close = () => {
     setCreating(false);

@@ -152,10 +152,10 @@ describe('MovementForm: sueldo multimoneda (E2E-02)', () => {
     expect(ctx.posted[0]!.body.settlements).toHaveLength(2);
   });
 
-  it('el crédito no se ofrece como billetera de cobro/pago', async () => {
+  it('el crédito no se ofrece como billetera de COBRO (un ingreso nunca se cobra en una tarjeta)', async () => {
     const api = movementsApi({}, { wallets: [WALLET(), WALLET({ id: 'w-cc', name: 'BBVA Master', type: 'CREDIT', bankId: 'b', bankName: 'BBVA' })] });
     await setup(api);
-    await press('Familia Egreso');
+    await press('Familia Ingreso');
     await press('Elegir billetera línea 1');
     await screen.findByText('EFT');
     expect(screen.queryByText('BBVA Master')).toBeNull();

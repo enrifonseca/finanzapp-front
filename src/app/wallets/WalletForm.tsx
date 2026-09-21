@@ -21,6 +21,8 @@ const Form = z
     bankId: z.string().optional(),
     locationText: z.string().trim().max(120, 'Máximo 120 caracteres').optional(),
     billingMode: z.enum(MODES).optional(),
+    closeDay: z.string().refine((v) => v === '' || (Number.isInteger(Number(v)) && Number(v) >= 1 && Number(v) <= 31), 'Día entre 1 y 31').optional(),
+    dueDay: z.string().refine((v) => v === '' || (Number.isInteger(Number(v)) && Number(v) >= 1 && Number(v) <= 31), 'Día entre 1 y 31').optional(),
   })
   .superRefine((v, ctx) => {
     if (v.type !== 'CASH' && !v.bankId) ctx.addIssue({ code: 'custom', path: ['bankId'], message: 'Elegí un banco' });
@@ -37,7 +39,15 @@ function toBody(v: Values): CreateWalletBody {
     currencies: v.currencies,
     ...(v.type !== 'CASH' && v.bankId ? { bankId: v.bankId } : {}),
     ...(v.type === 'CASH' && v.locationText ? { locationText: v.locationText } : {}),
-    ...(v.type === 'CREDIT' && v.billingMode ? { creditProfile: { billingMode: v.billingMode as BillingMode } } : {}),
+    ...(v.type === 'CREDIT' && v.billingMode
+      ? {
+          creditProfile: {
+            billingMode: v.billingMode as BillingMode,
+            ...(v.closeDay ? { nominalCloseDay: Number(v.closeDay) } : {}),
+            ...(v.dueDay ? { nominalDueDay: Number(v.dueDay) } : {}),
+          },
+        }
+      : {}),
   };
 }
 
@@ -58,7 +68,7 @@ export function WalletForm({ submitLabel = 'Crear billetera', onCreated }: { sub
   const preferred = me.data?.preferredCurrencyCode;
   const { control, handleSubmit, watch, setValue, setError, formState } = useForm<Values>({
     resolver: zodResolver(Form),
-    defaultValues: { name: '', currencies: preferred ? [preferred] : [], locationText: '' },
+    defaultValues: { name: '', currencies: preferred ? [preferred] : [], locationText: '', closeDay: '', dueDay: '' },
   });
   const type = watch('type');
   const selectedBank = (banks.data ?? []).find((b) => b.id === watch('bankId'));
@@ -174,8 +184,28 @@ export function WalletForm({ submitLabel = 'Crear billetera', onCreated }: { sub
               </RadioButton.Group>
             )}
           />
+          <Controller
+            control={control}
+            name="closeDay"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput mode="outlined" label="Día de cierre del mes (opcional)" accessibilityLabel="Día de cierre" value={value ?? ''} onChangeText={onChange} onBlur={onBlur} keyboardType="number-pad" error={!!formState.errors.closeDay} />
+            )}
+          />
+          <HelperText type="error" visible={!!formState.errors.closeDay}>
+            {formState.errors.closeDay?.message}
+          </HelperText>
+          <Controller
+            control={control}
+            name="dueDay"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput mode="outlined" label="Día de vencimiento del mes (opcional)" accessibilityLabel="Día de vencimiento" value={value ?? ''} onChangeText={onChange} onBlur={onBlur} keyboardType="number-pad" error={!!formState.errors.dueDay} />
+            )}
+          />
           <HelperText type="info" visible>
-            Los períodos se pueden cargar más adelante: no se inventan fechas.
+            Podés dejarlos para después: sin ellos, las compras quedan con período y vencimiento desconocidos (no se inventan fechas).
+          </HelperText>
+          <HelperText type="error" visible={!!formState.errors.dueDay}>
+            {formState.errors.dueDay?.message}
           </HelperText>
           <HelperText type="error" visible={!!formState.errors.billingMode}>
             {formState.errors.billingMode?.message}

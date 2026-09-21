@@ -18,7 +18,7 @@ export function HomeScreen() {
   return (
     <ScreenContainer bottomInset={80}>
       <Text variant="titleMedium">Billeteras</Text>
-      <WalletsList variant="carousel" onCreate={() => router.push('/wallet-new')} />
+      <WalletsList variant="carousel" onCreate={() => router.push('/wallet-new')} onOpen={(w) => router.push({ pathname: '/card/[id]', params: { id: w.id } })} />
       <Habituales />
       <Text variant="titleMedium">Últimos movimientos</Text>
       <RecentOperations />

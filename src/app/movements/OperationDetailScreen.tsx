@@ -11,6 +11,8 @@ import { ReferencePickerDialog } from './ReferencePickerDialog';
  * Detalle: separa lo ECONÓMICO (ganado/gastado por moneda) de lo EFECTIVO (cobrado/pagado por billetera).
  * Asociar una referencia después no crea otro gasto ni toca la caja; revertir compensa y conserva el historial.
  */
+const SUBTYPE_LABEL = { INTEREST: 'Interés', FEE: 'Comisión', TAX: 'Impuesto' } as const;
+
 export function OperationDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -54,19 +56,43 @@ export function OperationDetailScreen() {
         <Card.Title title={`${verbs.econ} (economía)`} subtitle="Cuenta una sola vez, por moneda" />
         <Card.Content style={{ gap: 2 }}>
           {o.economicComponents.map((c) => (
-            <Text key={c.currency}>{`${formatMoney(c.amount, c.currency)}${c.economicDate ? ` · ${formatDate(c.economicDate)}` : ''}`}</Text>
+            <Text key={`${c.currency}-${c.subtype ?? 'precio'}`}>{`${c.subtype ? `${SUBTYPE_LABEL[c.subtype]}: ` : ''}${formatMoney(c.amount, c.currency)}${c.economicDate ? ` · ${formatDate(c.economicDate)}` : ''}`}</Text>
           ))}
         </Card.Content>
       </Card>
 
-      <Card mode="outlined">
+      {o.cardPurchase && (
+        <Card mode="outlined" accessibilityLabel="Compra con tarjeta">
+          <Card.Title title="Compra con tarjeta" subtitle={`${o.cardPurchase.walletName} · ${formatDate(o.cardPurchase.purchaseDate)}`} />
+          <Card.Content style={{ gap: 2 }}>
+            <Text>{`Precio: ${formatMoney(o.cardPurchase.principal, o.cardPurchase.currency)}`}</Text>
+            <Text>{`Interés (calculado): ${formatMoney(o.cardPurchase.interest, o.cardPurchase.currency)}`}</Text>
+            <Text variant="titleSmall">{`Total a pagar: ${formatMoney(o.cardPurchase.totalPaid, o.cardPurchase.currency)}`}</Text>
+            <Text variant="bodySmall">{`${o.cardPurchase.installmentCount} cuota${o.cardPurchase.installmentCount > 1 ? 's' : ''} de ${formatMoney(o.cardPurchase.installmentAmount, o.cardPurchase.currency)}`}</Text>
+            {o.cardPurchase.installments.map((i) => (
+              <Text key={i.id} variant="bodySmall">{`Cuota ${i.number}: ${i.cycleLabel ? `resumen ${i.cycleLabel}${i.dueDate ? ` · vence ${formatDate(i.dueDate)}` : ''}` : 'sin resumen asignado'}${i.state === 'CANCELLED' ? ' (cancelada)' : ''}`}</Text>
+            ))}
+          </Card.Content>
+        </Card>
+      )}
+      {o.cardPayment && (
+        <Card mode="outlined" accessibilityLabel="Pago de resumen">
+          <Card.Title title="Pago de resumen" subtitle={`Resumen ${o.cardPayment.cycleLabel}`} />
+          <Card.Content style={{ gap: 2 }}>
+            <Text>{`Deuda que cancela: ${formatMoney(o.cardPayment.appliedAmount, o.cardPayment.currency)}`}</Text>
+            {o.cardPayment.impliedRate && <Text>{`Cotización implícita: ${o.cardPayment.impliedRate.replace('.', ',')}`}</Text>}
+          </Card.Content>
+        </Card>
+      )}
+
+      {o.settlements.length > 0 && <Card mode="outlined">
         <Card.Title title={`${verbs.cash} (caja)`} subtitle="Lo que efectivamente se movió en cada billetera" />
         <Card.Content style={{ gap: 2 }}>
           {o.settlements.map((s, i) => (
             <Text key={i}>{`${s.walletName}: ${formatMoney(s.amount, s.currency)} · ${formatDate(s.effectiveDate)}`}</Text>
           ))}
         </Card.Content>
-      </Card>
+      </Card>}
 
       {error && <ErrorText>{error}</ErrorText>}
       {o.state === 'CONFIRMED' && (

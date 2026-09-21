@@ -38,3 +38,10 @@ export async function call<T>(fn: () => Promise<Result<T>>): Promise<T> {
   }
   return unwrap(r);
 }
+
+/** Texto legible de un error de API para mostrar en pantalla (primero el error de campo, después el mensaje). */
+export function describeError(e: unknown): string {
+  if (!(e instanceof ApiRequestError)) return 'Ocurrió un error inesperado. Reintentá.';
+  if (e.code === 'NETWORK') return 'No hay conexión con el servidor. Tu borrador se conserva: reintentá cuando vuelva la red.';
+  return Object.values(e.fieldErrors)[0] ?? e.message;
+}
