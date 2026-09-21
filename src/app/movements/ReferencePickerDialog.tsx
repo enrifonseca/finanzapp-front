@@ -43,8 +43,8 @@ export function ReferencePickerDialog({ visible, onDismiss, onSelect }: { visibl
         <Dialog.Title>{creating ? 'Nueva referencia' : 'Referencia (opcional)'}</Dialog.Title>
         {creating ? (
           <Dialog.Content style={{ gap: 8 }}>
-            <TextInput label="Nombre (ej. Dpto 0027)" accessibilityLabel="Nombre de la referencia" value={name} onChangeText={setName} autoFocus />
-            <TextInput label="Número de cuenta o cliente (opcional)" accessibilityLabel="Código de la referencia" value={code} onChangeText={setCode} autoCapitalize="none" />
+            <TextInput mode="outlined" label="Nombre (ej. Dpto 0027)" accessibilityLabel="Nombre de la referencia" value={name} onChangeText={setName} autoFocus />
+            <TextInput mode="outlined" label="Número de cuenta o cliente (opcional)" accessibilityLabel="Código de la referencia" value={code} onChangeText={setCode} autoCapitalize="none" />
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
               {KINDS.map(([k, label]) => (
                 <Chip key={k} selected={kind === k} onPress={() => setKind(k)} accessibilityLabel={`Tipo ${label}`}>

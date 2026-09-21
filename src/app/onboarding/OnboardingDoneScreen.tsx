@@ -10,9 +10,8 @@ export function OnboardingDoneScreen() {
   const router = useRouter();
   const onboarding = useOnboarding();
   return (
-    <ScreenContainer>
+    <ScreenContainer title="Billetera creada">
       <View style={{ gap: 4 }}>
-        <Text variant="headlineSmall">Billetera creada</Text>
         <Text variant="bodyLarge">{name}</Text>
       </View>
       <Button mode="contained" onPress={() => onboarding.finish()}>

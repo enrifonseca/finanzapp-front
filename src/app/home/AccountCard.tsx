@@ -6,7 +6,7 @@ export function AccountCard() {
   const me = useMe();
   const { signOut } = useSession();
   return (
-    <Card>
+    <Card mode="outlined">
       <Card.Title title="Tu cuenta" />
       <Card.Content style={{ gap: 4 }}>
         {me.isPending && <Text>Cargando perfil…</Text>}

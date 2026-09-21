@@ -34,7 +34,7 @@ export function CategoryPickerDialog({ family, visible, onDismiss, onSelect }: {
         <Dialog.Title>{creating ? 'Nueva categoría' : 'Elegir categoría'}</Dialog.Title>
         {creating ? (
           <Dialog.Content>
-            <TextInput label="Nombre de la categoría" accessibilityLabel="Nombre de la categoría" value={name} onChangeText={setName} autoFocus />
+            <TextInput mode="outlined" label="Nombre de la categoría" accessibilityLabel="Nombre de la categoría" value={name} onChangeText={setName} autoFocus />
             <HelperText type="error" visible={!!error}>
               {error}
             </HelperText>

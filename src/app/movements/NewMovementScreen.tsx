@@ -1,5 +1,4 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Button, Text } from 'react-native-paper';
 import { ScreenContainer } from '@/layout';
 import { MovementForm, type MovementDraft } from './MovementForm';
 
@@ -14,10 +13,8 @@ export function NewMovementScreen() {
     ...(p.referenceId ? { referenceId: p.referenceId } : {}),
   };
   return (
-    <ScreenContainer>
-      <Text variant="headlineSmall">Nuevo movimiento</Text>
+    <ScreenContainer title="Nuevo movimiento" onBack={() => router.back()}>
       <MovementForm draft={draft} onCreated={() => router.replace('/')} />
-      <Button onPress={() => router.back()}>Cancelar</Button>
     </ScreenContainer>
   );
 }

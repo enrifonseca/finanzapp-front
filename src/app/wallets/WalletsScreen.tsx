@@ -5,7 +5,7 @@ import { WalletsList } from './WalletsList';
 export function WalletsScreen() {
   const router = useRouter();
   return (
-    <ScreenContainer>
+    <ScreenContainer bottomInset={80}>
       <WalletsList onCreate={() => router.push('/wallet-new')} />
     </ScreenContainer>
   );

@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 import { Button, Card, Chip, Dialog, Portal, Text } from 'react-native-paper';
-import { ApiRequestError, useOperation, usePatchOperation, useReverseOperation } from '@/core-react';
+import { ApiRequestError, formatDate, formatMoney, formatPeriod, useOperation, usePatchOperation, useReverseOperation } from '@/core-react';
 import { ErrorScreen, ScreenContainer } from '@/layout';
 import { ReferencePickerDialog } from './ReferencePickerDialog';
 
@@ -37,33 +37,32 @@ export function OperationDetailScreen() {
   };
 
   return (
-    <ScreenContainer>
+    <ScreenContainer title={o.concept} onBack={() => router.back()}>
       <View style={{ gap: 4 }}>
-        <Text variant="headlineSmall">{o.concept}</Text>
         <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
           <Chip compact>{o.family === 'INCOME' ? 'Ingreso' : 'Egreso'}</Chip>
           {o.state === 'REVERSED' && <Chip compact>Revertida</Chip>}
           {o.categoryName && <Chip compact>{o.categoryName}</Chip>}
           {o.referenceName && <Chip compact>{o.referenceName}</Chip>}
         </View>
-        {o.economicPeriod && <Text variant="bodySmall">Período: {o.economicPeriod}</Text>}
+        {o.economicPeriod && <Text variant="bodySmall">Período: {formatPeriod(o.economicPeriod)}</Text>}
         {o.note && <Text variant="bodySmall">{o.note}</Text>}
       </View>
 
-      <Card>
+      <Card mode="outlined">
         <Card.Title title={`${verbs.econ} (economía)`} subtitle="Cuenta una sola vez, por moneda" />
         <Card.Content style={{ gap: 2 }}>
           {o.economicComponents.map((c) => (
-            <Text key={c.currency}>{`${c.amount} ${c.currency}${c.economicDate ? ` · ${c.economicDate}` : ''}`}</Text>
+            <Text key={c.currency}>{`${formatMoney(c.amount, c.currency)}${c.economicDate ? ` · ${formatDate(c.economicDate)}` : ''}`}</Text>
           ))}
         </Card.Content>
       </Card>
 
-      <Card>
+      <Card mode="outlined">
         <Card.Title title={`${verbs.cash} (caja)`} subtitle="Lo que efectivamente se movió en cada billetera" />
         <Card.Content style={{ gap: 2 }}>
           {o.settlements.map((s, i) => (
-            <Text key={i}>{`${s.walletName}: ${s.amount} ${s.currency} · ${s.effectiveDate}`}</Text>
+            <Text key={i}>{`${s.walletName}: ${formatMoney(s.amount, s.currency)} · ${formatDate(s.effectiveDate)}`}</Text>
           ))}
         </Card.Content>
       </Card>
@@ -79,7 +78,6 @@ export function OperationDetailScreen() {
           </Button>
         </View>
       )}
-      <Button onPress={() => router.back()}>Volver</Button>
 
       <ReferencePickerDialog visible={picking} onDismiss={() => setPicking(false)} onSelect={(refId) => void patch.mutateAsync({ referenceId: refId })} />
       <Portal>

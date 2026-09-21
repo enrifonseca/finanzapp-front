@@ -1,5 +1,4 @@
 import { useRouter } from 'expo-router';
-import { Button, Text } from 'react-native-paper';
 import { ScreenContainer } from '@/layout';
 import { WalletForm } from './WalletForm';
 
@@ -7,10 +6,8 @@ import { WalletForm } from './WalletForm';
 export function NewWalletScreen() {
   const router = useRouter();
   return (
-    <ScreenContainer>
-      <Text variant="headlineSmall">Nueva billetera</Text>
+    <ScreenContainer title="Nueva billetera" onBack={() => router.back()}>
       <WalletForm onCreated={() => router.replace('/billeteras')} />
-      <Button onPress={() => router.back()}>Cancelar</Button>
     </ScreenContainer>
   );
 }

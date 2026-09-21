@@ -5,13 +5,13 @@ import { View } from 'react-native';
 import { Button, Card, Chip, HelperText, SegmentedButtons, Text, TextInput } from 'react-native-paper';
 import { z } from 'zod';
 import {
-  ApiRequestError, addDecimal, formatDecimal, isZero, normalizeAmount, parseDecimal, useCategories, useCreateOperation, useReferences, useWallets,
+  ApiRequestError, addDecimal, formatDate, formatDecimal, formatMoney, isZero, normalizeAmount, parseDate, parseDecimal, parsePeriod, useCategories, useCreateOperation, useReferences, useWallets,
   type CreateOperationBody, type Dec, type Operation, type OperationFamily, type Wallet,
 } from '@/core-react';
 import { CategoryPickerDialog } from './CategoryPickerDialog';
 import { ReferencePickerDialog } from './ReferencePickerDialog';
 import { WalletPickerDialog } from './WalletPickerDialog';
-import { isIsoDate, todayLocal } from './dates';
+import { todayLocal } from './dates';
 
 const Line = z.object({
   walletId: z.string().min(1, 'Elegí una billetera'),
@@ -27,8 +27,8 @@ const Form = z.object({
   categoryId: z.string().optional(),
   concept: z.string().trim().min(1, 'Ingresá un concepto').max(120, 'Máximo 120 caracteres'),
   referenceId: z.string().optional(),
-  date: z.string().refine(isIsoDate, 'Fecha inválida (AAAA-MM-DD)'),
-  economicPeriod: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Período inválido (AAAA-MM)').or(z.literal('')).optional(),
+  date: z.string().refine((v) => parseDate(v) !== null, 'Fecha inválida (DD/MM/AAAA)'),
+  economicPeriod: z.string().refine((v) => v === '' || parsePeriod(v) !== null, 'Período inválido (MM/AAAA)').optional(),
   lines: z.array(Line).min(1),
 });
 type Values = z.infer<typeof Form>;
@@ -51,18 +51,21 @@ export function sumByCurrency(lines: ReadonlyArray<{ currency: string; amount: s
 }
 
 function toBody(v: Values): CreateOperationBody {
-  const settlements = v.lines.map((l) => ({ walletId: l.walletId, currency: l.currency, amount: normalizeAmount(l.amount)!, effectiveDate: v.date }));
+  // La pantalla usa DD/MM/AAAA y MM/AAAA; la API siempre recibe ISO (2026-09-19 / 2026-08).
+  const date = parseDate(v.date)!;
+  const period = v.economicPeriod ? parsePeriod(v.economicPeriod) : null;
+  const settlements = v.lines.map((l) => ({ walletId: l.walletId, currency: l.currency, amount: normalizeAmount(l.amount)!, effectiveDate: date }));
   return {
     family: v.family,
     ...(v.categoryId ? { categoryId: v.categoryId } : {}),
     concept: v.concept,
     ...(v.referenceId ? { referenceId: v.referenceId } : {}),
-    ...(v.family === 'INCOME' && v.economicPeriod ? { economicPeriod: v.economicPeriod } : {}),
+    ...(v.family === 'INCOME' && period ? { economicPeriod: period } : {}),
     economicComponents: sumByCurrency(settlements).map(([currency, amount]) => ({
       currency,
       amount,
       // Gasto: fecha económica explícita. Ingreso: solo período opcional; la fecha "ganado" queda desconocida (no se rellena con hoy).
-      ...(v.family === 'EXPENSE' ? { economicDate: v.date } : {}),
+      ...(v.family === 'EXPENSE' ? { economicDate: date } : {}),
     })),
     settlements,
   };
@@ -85,7 +88,7 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
     resolver: zodResolver(Form),
     defaultValues: {
       family: draft.family, categoryId: draft.categoryId, concept: draft.concept ?? '', referenceId: draft.referenceId,
-      date: todayLocal(), economicPeriod: '', lines: [{ walletId: '', currency: '', amount: '' }],
+      date: formatDate(todayLocal()), economicPeriod: '', lines: [{ walletId: '', currency: '', amount: '' }],
     },
   });
   const { fields, append, remove } = useFieldArray({ control, name: 'lines' });
@@ -169,7 +172,7 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
             control={control}
             name="concept"
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput label="Concepto (ej. Impuesto municipal)" accessibilityLabel="Concepto" value={value} onChangeText={onChange} onBlur={onBlur} error={!!formState.errors.concept} />
+              <TextInput mode="outlined" label="Concepto (ej. Impuesto municipal)" accessibilityLabel="Concepto" value={value} onChangeText={onChange} onBlur={onBlur} error={!!formState.errors.concept} />
             )}
           />
           <HelperText type="error" visible={!!formState.errors.concept}>
@@ -215,7 +218,7 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
                     control={control}
                     name={`lines.${index}.amount`}
                     render={({ field: { onChange, onBlur, value } }) => (
-                      <TextInput
+                      <TextInput mode="outlined"
                         label="Importe"
                         accessibilityLabel={`Importe línea ${index + 1}`}
                         value={value}
@@ -242,14 +245,14 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
             Agregar línea
           </Button>
           {totals.length > 0 && (
-            <Text accessibilityLabel="Totales por moneda">{`Total: ${totals.map(([c, a]) => `${a} ${c}`).join(' · ')}`}</Text>
+            <Text accessibilityLabel="Totales por moneda">{`Total: ${totals.map(([c, a]) => formatMoney(a, c)).join(' · ')}`}</Text>
           )}
 
           <Controller
             control={control}
             name="date"
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput label={family === 'INCOME' ? 'Fecha de cobro (AAAA-MM-DD)' : 'Fecha de pago (AAAA-MM-DD)'} accessibilityLabel="Fecha" value={value} onChangeText={onChange} onBlur={onBlur} error={!!formState.errors.date} />
+              <TextInput mode="outlined" label={family === 'INCOME' ? 'Fecha de cobro (DD/MM/AAAA)' : 'Fecha de pago (DD/MM/AAAA)'} accessibilityLabel="Fecha" value={value} onChangeText={onChange} onBlur={onBlur} error={!!formState.errors.date} />
             )}
           />
           <HelperText type="error" visible={!!formState.errors.date}>
@@ -261,7 +264,7 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
                 control={control}
                 name="economicPeriod"
                 render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput label="Período al que corresponde (opcional, AAAA-MM)" accessibilityLabel="Período" value={value ?? ''} onChangeText={onChange} onBlur={onBlur} error={!!formState.errors.economicPeriod} />
+                  <TextInput mode="outlined" label="Período al que corresponde (opcional, MM/AAAA)" accessibilityLabel="Período" value={value ?? ''} onChangeText={onChange} onBlur={onBlur} error={!!formState.errors.economicPeriod} />
                 )}
               />
               <HelperText type="error" visible={!!formState.errors.economicPeriod}>

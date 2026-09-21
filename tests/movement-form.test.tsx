@@ -83,7 +83,7 @@ describe('MovementForm: sueldo multimoneda (E2E-02)', () => {
     const created = await setup();
     await press('Familia Ingreso');
     await text('Concepto', 'Sueldo agosto');
-    await text('Período', '2026-08');
+    await text('Período', '08/2026');
     await pickWallet(1, 'EFT');
     await text('Importe línea 1', '1700');
     await press('Agregar línea');
@@ -99,7 +99,7 @@ describe('MovementForm: sueldo multimoneda (E2E-02)', () => {
     expect(screen.getByLabelText('Concepto').props.value).toBe('Sueldo agosto');
     expect(screen.getByLabelText('Elegir billetera línea 1')).toHaveTextContent('EFT', { exact: false });
     await text('Importe línea 2', '1200');
-    expect(screen.getByLabelText('Totales por moneda')).toHaveTextContent('1700 ARS · 1200 USD', { exact: false });
+    expect(screen.getByLabelText('Totales por moneda')).toHaveTextContent('$ 1.700 · US$ 1.200', { exact: false });
     await submit();
     await waitFor(() => expect(created).toHaveLength(1));
     const body = ctx.posted[0]!.body;
@@ -107,6 +107,33 @@ describe('MovementForm: sueldo multimoneda (E2E-02)', () => {
     expect(body.economicComponents).toEqual([{ currency: 'ARS', amount: '1700' }, { currency: 'USD', amount: '1200' }]);
     expect(body.economicComponents.every((c: { economicDate?: string }) => c.economicDate === undefined)).toBe(true); // "ganado" sin fecha inventada
     expect(body.settlements.map((s: { currency: string }) => s.currency)).toEqual(['ARS', 'USD']);
+  });
+
+  it('la fecha se ve y se escribe DD/MM/AAAA pero la API recibe ISO; el período MM/AAAA viaja como AAAA-MM', async () => {
+    await setup();
+    await press('Familia Ingreso');
+    await text('Concepto', 'Sueldo');
+    await text('Período', '08/2026');
+    await pickWallet(1, 'EFT');
+    await text('Importe línea 1', '100');
+    expect((screen.getByLabelText('Fecha').props.value as string)).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
+    await text('Fecha', '07/09/2026');
+    await submit();
+    await waitFor(() => expect(ctx.posted).toHaveLength(1));
+    expect(ctx.posted[0]!.body.settlements[0].effectiveDate).toBe('2026-09-07');
+    expect(ctx.posted[0]!.body.economicPeriod).toBe('2026-08');
+  });
+
+  it('una fecha ISO o inexistente se rechaza con mensaje', async () => {
+    await setup();
+    await press('Familia Egreso');
+    await text('Fecha', '2026-09-07');
+    await submit();
+    await waitFor(() => expect(screen.getByText('Fecha inválida (DD/MM/AAAA)')).toBeTruthy());
+    await text('Fecha', '31/02/2026');
+    await submit();
+    await waitFor(() => expect(screen.getByText('Fecha inválida (DD/MM/AAAA)')).toBeTruthy());
+    expect(ctx.posted).toEqual([]);
   });
 
   it('dos líneas de la misma moneda se suman en UN componente económico', async () => {

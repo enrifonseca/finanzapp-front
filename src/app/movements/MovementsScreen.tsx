@@ -11,10 +11,7 @@ export function MovementsScreen() {
   const history = useOperationsHistory();
   const ops = history.data?.pages.flatMap((p) => p.items) ?? [];
   return (
-    <ScreenContainer>
-      <Button mode="contained" icon="plus" onPress={() => router.push('/movement-new')}>
-        Nuevo movimiento
-      </Button>
+    <ScreenContainer bottomInset={80}>
       {history.isPending && <Text>Cargando movimientos…</Text>}
       {history.isError && (
         <View style={{ gap: 8 }}>

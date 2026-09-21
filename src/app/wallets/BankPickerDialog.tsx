@@ -38,7 +38,7 @@ export function BankPickerDialog({ visible, onDismiss, onSelect }: { visible: bo
         <Dialog.Title>{creating ? 'Nuevo banco' : 'Elegir banco'}</Dialog.Title>
         {creating ? (
           <Dialog.Content>
-            <TextInput label="Nombre del banco" accessibilityLabel="Nombre del banco" value={name} onChangeText={setName} autoFocus />
+            <TextInput mode="outlined" label="Nombre del banco" accessibilityLabel="Nombre del banco" value={name} onChangeText={setName} autoFocus />
             <HelperText type="error" visible={!!error}>
               {error}
             </HelperText>

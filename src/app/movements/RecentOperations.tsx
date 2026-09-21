@@ -22,7 +22,7 @@ export function RecentOperations() {
     return <EmptyState title="Todavía no hay movimientos" description="Registrá tu primer ingreso o egreso con “Nuevo movimiento”." />;
   }
   return (
-    <View>
+    <View style={{ gap: 8 }}>
       {recent.data.map((op) => (
         <OperationRow key={op.id} op={op} onPress={() => router.push({ pathname: '/operation/[id]', params: { id: op.id } })} />
       ))}

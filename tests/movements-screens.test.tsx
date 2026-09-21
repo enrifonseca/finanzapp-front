@@ -40,8 +40,11 @@ describe('Últimos movimientos (Home)', () => {
     await renderWithProviders(<RecentOperations />, { session: VALID_SESSION });
     await screen.findByText('Sueldo agosto');
     expect(screen.getAllByLabelText(/^Operación /)).toHaveLength(2);
-    expect(screen.getByText(/\+1700\.00 ARS · \+1200\.00 USD/)).toBeTruthy();
-    expect(screen.getByText(/−14999\.00 ARS/)).toBeTruthy();
+    expect(screen.getByText('+$ 1.700,00')).toBeTruthy();
+    expect(screen.getByText('+US$ 1.200,00')).toBeTruthy(); // cada moneda por separado, nunca sumadas
+    expect(screen.getByText('−$ 14.999,00')).toBeTruthy();
+    expect(screen.getByText('07')).toBeTruthy(); // bloque de fecha: día
+    expect(screen.getAllByText('SEP').length).toBeGreaterThan(0);
     fireEvent.press(screen.getByText('Sueldo agosto'));
     expect(routerMock.push).toHaveBeenCalledWith({ pathname: '/operation/[id]', params: { id: 'op-salary' } });
   });
@@ -67,12 +70,12 @@ describe('Habituales', () => {
 });
 
 describe('Historial (Movimientos)', () => {
-  it('lista y permite empezar un movimiento nuevo', async () => {
+  it('lista y abre el detalle', async () => {
     ctx = movementsApi({}, { operations: [OP({ id: 'x1' })] });
     await renderWithProviders(<MovementsScreen />, { session: VALID_SESSION });
     await screen.findByText('Impuesto municipal');
-    fireEvent.press(screen.getByText('Nuevo movimiento'));
-    expect(routerMock.push).toHaveBeenCalledWith('/movement-new');
+    fireEvent.press(screen.getByLabelText('Operación Impuesto municipal'));
+    expect(routerMock.push).toHaveBeenCalledWith({ pathname: '/operation/[id]', params: { id: 'x1' } });
   });
 
   it('pagina por cursor con "Cargar más" sin repetir filas', async () => {
@@ -108,9 +111,9 @@ describe('Detalle de operación', () => {
     await screen.findByText('Sueldo agosto');
     expect(screen.getByText('Ganado (economía)')).toBeTruthy();
     expect(screen.getByText('Cobrado (caja)')).toBeTruthy();
-    expect(screen.getByText('1700.00 ARS')).toBeTruthy();
-    expect(screen.getByText('USD EFT: 1200.00 USD · 2026-09-07')).toBeTruthy();
-    expect(screen.getByText('Período: 2026-08')).toBeTruthy();
+    expect(screen.getByText('$ 1.700,00')).toBeTruthy();
+    expect(screen.getByText('USD EFT: US$ 1.200,00 · 07/09/2026')).toBeTruthy();
+    expect(screen.getByText('Período: 08/2026')).toBeTruthy();
   });
 
   it('revertir pide confirmación y llama al endpoint con Idempotency-Key', async () => {
@@ -142,10 +145,11 @@ describe('Billeteras con movimientos', () => {
     ctx = movementsApi();
     const withMoves = WALLET({ balances: [{ currency: 'ARS', status: 'unknown', observedDelta: '-13299.00' }] });
     await renderWithProviders(<WalletCard wallet={withMoves as never} />, { session: VALID_SESSION });
-    expect(screen.getByText(/ARS: sin saldo inicial · movimientos registrados: -13299\.00/)).toBeTruthy();
+    expect(screen.getByText('sin saldo inicial')).toBeTruthy();
+    expect(screen.getByText('Movimientos: −$ 13.299,00')).toBeTruthy();
     await cleanup();
     await renderWithProviders(<WalletCard wallet={WALLET() as never} />, { session: VALID_SESSION });
-    expect(screen.getByText('ARS: sin saldo inicial')).toBeTruthy();
-    expect(screen.queryByText(/movimientos registrados/)).toBeNull();
+    expect(screen.getByText('sin saldo inicial')).toBeTruthy();
+    expect(screen.queryByText(/movimientos:/)).toBeNull();
   });
 });

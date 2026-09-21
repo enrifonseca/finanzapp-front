@@ -11,8 +11,7 @@ export function OnboardingScreen() {
   const me = useMe();
   const isFirst = (wallets.data?.length ?? 0) === 0 && !me.data?.onboardingCompleted;
   return (
-    <ScreenContainer>
-      <Text variant="headlineSmall">{isFirst ? 'Creá tu primera billetera' : 'Crear otra billetera'}</Text>
+    <ScreenContainer title={isFirst ? 'Creá tu primera billetera' : 'Crear otra billetera'}>
       <Text variant="bodyMedium">
         {isFirst ? 'Solo necesitamos un nombre, el tipo y las monedas. El resto lo podés completar después.' : 'Podés crear todas las que necesites.'}
       </Text>

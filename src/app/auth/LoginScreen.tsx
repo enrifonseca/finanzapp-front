@@ -35,9 +35,8 @@ export function LoginScreen() {
   });
 
   return (
-    <ScreenContainer>
+    <ScreenContainer title="Finanzas Personales">
       <View style={styles.header}>
-        <Text variant="headlineMedium">Finanzas Personales</Text>
         <Text variant="bodyMedium">Ingresá con tu cuenta para empezar.</Text>
       </View>
 
@@ -64,7 +63,7 @@ export function LoginScreen() {
               control={control}
               name="name"
               render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
+                <TextInput mode="outlined"
                   label="Nombre de usuario de prueba"
                   accessibilityLabel="Nombre de usuario de prueba"
                   value={value}
@@ -97,7 +96,7 @@ export function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { gap: 4, paddingTop: 32 },
+  header: { gap: 4, paddingTop: 8 },
   stack: { gap: 8 },
   error: { color: '#B3261E' },
 });

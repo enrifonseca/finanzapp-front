@@ -82,7 +82,7 @@ export function WalletForm({ submitLabel = 'Crear billetera', onCreated }: { sub
         control={control}
         name="name"
         render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput label="Nombre de la billetera" accessibilityLabel="Nombre de la billetera" value={value} onChangeText={onChange} onBlur={onBlur} error={!!formState.errors.name} />
+          <TextInput mode="outlined" label="Nombre de la billetera" accessibilityLabel="Nombre de la billetera" value={value} onChangeText={onChange} onBlur={onBlur} error={!!formState.errors.name} />
         )}
       />
       <HelperText type="error" visible={!!formState.errors.name}>
@@ -142,7 +142,7 @@ export function WalletForm({ submitLabel = 'Crear billetera', onCreated }: { sub
           control={control}
           name="locationText"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput label="Ubicación o referencia (opcional)" accessibilityLabel="Ubicación" value={value ?? ''} onChangeText={onChange} onBlur={onBlur} />
+            <TextInput mode="outlined" label="Ubicación o referencia (opcional)" accessibilityLabel="Ubicación" value={value ?? ''} onChangeText={onChange} onBlur={onBlur} />
           )}
         />
       )}

@@ -1,36 +1,62 @@
-import { View } from 'react-native';
-import { Card, Chip, Text } from 'react-native-paper';
-import type { Wallet } from '@/core-react';
+import { StyleSheet, View } from 'react-native';
+import { Surface, Text, useTheme } from 'react-native-paper';
+import { formatMoney, type Wallet } from '@/core-react';
 import { BILLING_LABEL, TYPE_LABEL } from './labels';
 
-/** Tarjeta de billetera. El saldo desconocido se muestra como "sin saldo inicial", nunca como 0. */
-export function WalletCard({ wallet }: { wallet: Wallet }) {
+const isZero = (s: string) => /^-?0+(\.0+)?$/.test(s);
+
+/**
+ * Tarjeta de billetera (color de marca). El saldo desconocido se muestra como "sin saldo inicial", nunca como 0;
+ * si hay movimientos se informa la variación REGISTRADA, que no es el saldo disponible.
+ */
+export function WalletCard({ wallet, compact = false }: { wallet: Wallet; compact?: boolean }) {
+  const theme = useTheme();
   const subtitle = [TYPE_LABEL[wallet.type], wallet.bankName, wallet.locationText].filter(Boolean).join(' · ');
+  const fg = theme.colors.onPrimary;
   return (
-    <Card accessibilityLabel={`Billetera ${wallet.name}`}>
-      <Card.Title title={wallet.name} subtitle={subtitle} />
-      <Card.Content style={{ gap: 6 }}>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-          {wallet.currencies.map((c) => (
-            <Chip key={c} compact>
-              {c}
-            </Chip>
-          ))}
-        </View>
+    <Surface
+      elevation={2}
+      accessibilityLabel={`Billetera ${wallet.name}`}
+      style={[styles.card, compact && styles.compact, { backgroundColor: theme.colors.primary, borderRadius: theme.roundness * 4 }]}
+    >
+      <Text variant="titleMedium" style={{ color: fg, fontWeight: '700' }}>
+        {wallet.name}
+      </Text>
+      <Text variant="bodySmall" style={{ color: fg, opacity: 0.85 }}>
+        {subtitle}
+      </Text>
+      <View style={styles.lines}>
         {wallet.balances.map((b) => (
-          <Text key={b.currency} variant="bodySmall">
-            {b.currency}: sin saldo inicial
-            {/* Solo se informa lo REGISTRADO: no es el saldo disponible (que se desconoce). */}
-            {!/^-?0+(\.0+)?$/.test(b.observedDelta) ? ` · movimientos registrados: ${b.observedDelta}` : ''}
-          </Text>
+          <View key={b.currency} style={styles.line}>
+            <Text variant="labelLarge" style={{ color: fg, width: 40 }}>
+              {b.currency}
+            </Text>
+            <View style={{ flex: 1 }}>
+              <Text variant="bodySmall" style={{ color: fg, opacity: 0.9 }}>
+                sin saldo inicial
+              </Text>
+              {!isZero(b.observedDelta) && (
+                <Text variant="bodySmall" style={{ color: fg, fontWeight: '700' }}>
+                  {`Movimientos: ${formatMoney(b.observedDelta, b.currency)}`}
+                </Text>
+              )}
+            </View>
+          </View>
         ))}
-        {wallet.creditProfile && (
-          <Text variant="bodySmall">
-            {BILLING_LABEL[wallet.creditProfile.billingMode]}
-            {wallet.creditProfile.setupStatus === 'PARTIAL' ? ' · períodos sin configurar' : ''}
-          </Text>
-        )}
-      </Card.Content>
-    </Card>
+      </View>
+      {wallet.creditProfile && (
+        <Text variant="bodySmall" style={{ color: fg, opacity: 0.85 }}>
+          {BILLING_LABEL[wallet.creditProfile.billingMode]}
+          {wallet.creditProfile.setupStatus === 'PARTIAL' ? ' · períodos sin configurar' : ''}
+        </Text>
+      )}
+    </Surface>
   );
 }
+
+const styles = StyleSheet.create({
+  card: { padding: 16, gap: 4 },
+  compact: { width: 260 },
+  lines: { gap: 2, marginTop: 6 },
+  line: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
+});
