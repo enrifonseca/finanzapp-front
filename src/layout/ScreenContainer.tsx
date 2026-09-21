@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
+import { headerColors } from '@/ui-system';
 
 /**
  * Contenedor de pantalla. Con `title` muestra la cabecera verde (Appbar de Paper); con `onBack`, la flecha de volver.
@@ -8,12 +9,13 @@ import { Appbar, useTheme } from 'react-native-paper';
  */
 export function ScreenContainer({ children, title, onBack, bottomInset = 0 }: { children: ReactNode; title?: string; onBack?: () => void; bottomInset?: number }) {
   const theme = useTheme();
+  const header = headerColors(theme);
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
       {title !== undefined && (
-        <Appbar.Header mode="small" style={{ backgroundColor: theme.colors.primary }} statusBarHeight={0}>
-          {onBack && <Appbar.BackAction onPress={onBack} color={theme.colors.onPrimary} accessibilityLabel="Volver" />}
-          <Appbar.Content title={title} titleStyle={{ color: theme.colors.onPrimary }} />
+        <Appbar.Header mode="small" style={{ backgroundColor: header.background }} statusBarHeight={0}>
+          {onBack && <Appbar.BackAction onPress={onBack} color={header.foreground} accessibilityLabel="Volver" />}
+          <Appbar.Content title={title} titleStyle={{ color: header.foreground }} />
         </Appbar.Header>
       )}
       <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: 16 + bottomInset }]}>
