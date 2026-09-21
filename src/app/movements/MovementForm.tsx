@@ -4,6 +4,7 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import { Button, Card, Chip, HelperText, SegmentedButtons, Text, TextInput } from 'react-native-paper';
 import { z } from 'zod';
+import { ErrorText } from '@/ui-system';
 import {
   ApiRequestError, addDecimal, formatDate, formatDecimal, formatMoney, isZero, normalizeAmount, parseDate, parseDecimal, parsePeriod, useCategories, useCreateOperation, useReferences, useWallets,
   type CreateOperationBody, type Dec, type Operation, type OperationFamily, type Wallet,
@@ -276,9 +277,7 @@ export function MovementForm({ draft = {}, onCreated }: { draft?: MovementDraft;
       )}
 
       {formError && (
-        <Text accessibilityRole="alert" style={{ color: '#B3261E' }}>
-          {formError}
-        </Text>
+        <ErrorText>{formError}</ErrorText>
       )}
       <Button mode="contained" onPress={() => void onSubmit()} loading={formState.isSubmitting} disabled={formState.isSubmitting}>
         Confirmar movimiento

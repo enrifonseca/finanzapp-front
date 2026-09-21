@@ -4,6 +4,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import { Button, Chip, HelperText, RadioButton, SegmentedButtons, Text, TextInput } from 'react-native-paper';
 import { z } from 'zod';
+import { ErrorText } from '@/ui-system';
 import { ApiRequestError, useBanks, useCreateWallet, useCurrencies, useMe, type BillingMode, type CreateWalletBody, type Wallet } from '@/core-react';
 import { AddCurrencyDialog } from './AddCurrencyDialog';
 import { BankPickerDialog } from './BankPickerDialog';
@@ -183,9 +184,7 @@ export function WalletForm({ submitLabel = 'Crear billetera', onCreated }: { sub
       )}
 
       {formError && (
-        <Text accessibilityRole="alert" style={{ color: '#B3261E' }}>
-          {formError}
-        </Text>
+        <ErrorText>{formError}</ErrorText>
       )}
       <Button mode="contained" onPress={() => void onSubmit()} loading={formState.isSubmitting} disabled={formState.isSubmitting}>
         {submitLabel}

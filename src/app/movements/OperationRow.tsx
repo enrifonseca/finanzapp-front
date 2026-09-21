@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { Chip, Surface, Text, TouchableRipple, useTheme } from 'react-native-paper';
 import { dayMonth, formatSigned, type Operation } from '@/core-react';
+import { FONT } from '@/ui-system';
 
 /** Fecha con la que se muestra la operación: cuándo se movió el dinero; si no, la fecha económica; si no, la de registro. */
 export function operationDate(op: Operation): string {
@@ -24,7 +25,7 @@ export function OperationRow({ op, onPress }: { op: Operation; onPress: () => vo
       <TouchableRipple onPress={onPress} accessibilityLabel={`Operación ${op.concept}`} accessibilityRole="button" borderless style={{ borderRadius: theme.roundness * 2 }}>
         <View style={styles.row}>
           <View style={[styles.date, { backgroundColor: theme.colors.primaryContainer }]}>
-            <Text variant="titleMedium" style={{ color: theme.colors.onPrimaryContainer, fontWeight: '700' }}>
+            <Text variant="titleMedium" style={{ color: theme.colors.onPrimaryContainer, fontFamily: FONT.bold }}>
               {day}
             </Text>
             <Text variant="labelSmall" style={{ color: theme.colors.onPrimaryContainer }}>
@@ -44,7 +45,7 @@ export function OperationRow({ op, onPress }: { op: Operation; onPress: () => vo
           </View>
           <View style={styles.amounts}>
             {operationAmounts(op).map((a) => (
-              <Text key={a} variant="titleSmall" style={{ color: amountColor, fontWeight: '700', textDecorationLine: op.state === 'REVERSED' ? 'line-through' : 'none' }}>
+              <Text key={a} variant="titleSmall" style={{ color: amountColor, fontFamily: FONT.bold, textDecorationLine: op.state === 'REVERSED' ? 'line-through' : 'none' }}>
                 {a}
               </Text>
             ))}

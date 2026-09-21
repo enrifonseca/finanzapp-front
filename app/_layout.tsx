@@ -1,8 +1,10 @@
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import { useMe, useOnboarding, useSession } from '@/core-react';
 import { AppProviders } from '@/kernel';
 import { ErrorScreen, LoadingScreen } from '@/layout';
+import { ROBOTO_FONTS } from '@/ui-system';
 
 /** Sesión + primer uso: sin sesión solo /login; con sesión pero sin billeteras (o dentro del asistente) solo /onboarding. */
 function RootNavigator() {
@@ -45,6 +47,9 @@ function RootNavigator() {
 }
 
 export default function RootLayout() {
+  // Roboto se carga antes de dibujar nada; si fallara la carga se sigue con la fuente del sistema (nunca se bloquea la app).
+  const [loaded, fontError] = useFonts(ROBOTO_FONTS);
+  if (!loaded && !fontError) return null;
   return (
     <AppProviders>
       <RootNavigator />

@@ -1,10 +1,12 @@
-import { Button, Card, Text } from 'react-native-paper';
-import { useMe, useSession } from '@/core-react';
+import { View } from 'react-native';
+import { Button, Card, Switch, Text } from 'react-native-paper';
+import { useMe, useSession, useThemeMode } from '@/core-react';
 
 /** Perfil del usuario desde GET /v1/me + cerrar sesión. */
 export function AccountCard() {
   const me = useMe();
   const { signOut } = useSession();
+  const { mode, setMode } = useThemeMode();
   return (
     <Card mode="outlined">
       <Card.Title title="Tu cuenta" />
@@ -19,6 +21,10 @@ export function AccountCard() {
             <Text>Primer uso: {me.data.onboardingCompleted ? 'completo' : 'pendiente (sin billeteras)'}</Text>
           </>
         )}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+          <Text>Modo oscuro</Text>
+          <Switch value={mode === 'dark'} onValueChange={(on) => setMode(on ? 'dark' : 'light')} accessibilityLabel="Modo oscuro" />
+        </View>
       </Card.Content>
       <Card.Actions>
         {me.isError && <Button onPress={() => void me.refetch()}>Reintentar perfil</Button>}

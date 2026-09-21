@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { Surface, Text, useTheme } from 'react-native-paper';
 import { formatMoney, type Wallet } from '@/core-react';
+import { FONT } from '@/ui-system';
 import { BILLING_LABEL, TYPE_LABEL } from './labels';
 
 const isZero = (s: string) => /^-?0+(\.0+)?$/.test(s);
@@ -19,7 +20,7 @@ export function WalletCard({ wallet, compact = false }: { wallet: Wallet; compac
       accessibilityLabel={`Billetera ${wallet.name}`}
       style={[styles.card, compact && styles.compact, { backgroundColor: theme.colors.primary, borderRadius: theme.roundness * 4 }]}
     >
-      <Text variant="titleMedium" style={{ color: fg, fontWeight: '700' }}>
+      <Text variant="titleMedium" style={{ color: fg, fontFamily: FONT.bold }}>
         {wallet.name}
       </Text>
       <Text variant="bodySmall" style={{ color: fg, opacity: 0.85 }}>
@@ -36,7 +37,7 @@ export function WalletCard({ wallet, compact = false }: { wallet: Wallet; compac
                 sin saldo inicial
               </Text>
               {!isZero(b.observedDelta) && (
-                <Text variant="bodySmall" style={{ color: fg, fontWeight: '700' }}>
+                <Text variant="bodySmall" style={{ color: fg, fontFamily: FONT.bold }}>
                   {`Movimientos: ${formatMoney(b.observedDelta, b.currency)}`}
                 </Text>
               )}

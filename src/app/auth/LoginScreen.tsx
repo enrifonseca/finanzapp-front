@@ -6,6 +6,7 @@ import { Button, Card, HelperText, Text, TextInput } from 'react-native-paper';
 import { z } from 'zod';
 import { AuthError, useRuntimeConfig, useSession } from '@/core-react';
 import { ScreenContainer } from '@/layout';
+import { ErrorText } from '@/ui-system';
 
 const SandboxForm = z.object({
   name: z.string().trim().regex(/^[A-Za-z0-9_-]{1,64}$/, 'Solo letras, números, guion y guion bajo (máx. 64)'),
@@ -87,9 +88,7 @@ export function LoginScreen() {
       )}
 
       {error && (
-        <Text accessibilityRole="alert" variant="bodyMedium" style={styles.error}>
-          {error}
-        </Text>
+        <ErrorText>{error}</ErrorText>
       )}
     </ScreenContainer>
   );
@@ -98,5 +97,4 @@ export function LoginScreen() {
 const styles = StyleSheet.create({
   header: { gap: 4, paddingTop: 8 },
   stack: { gap: 8 },
-  error: { color: '#B3261E' },
 });

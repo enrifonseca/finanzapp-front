@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { Button, Card, Chip, Dialog, Portal, Text } from 'react-native-paper';
 import { ApiRequestError, formatDate, formatMoney, formatPeriod, useOperation, usePatchOperation, useReverseOperation } from '@/core-react';
 import { ErrorScreen, ScreenContainer } from '@/layout';
+import { ErrorText } from '@/ui-system';
 import { ReferencePickerDialog } from './ReferencePickerDialog';
 
 /**
@@ -67,7 +68,7 @@ export function OperationDetailScreen() {
         </Card.Content>
       </Card>
 
-      {error && <Text accessibilityRole="alert" style={{ color: '#B3261E' }}>{error}</Text>}
+      {error && <ErrorText>{error}</ErrorText>}
       {o.state === 'CONFIRMED' && (
         <View style={{ gap: 8 }}>
           <Button mode="outlined" icon="link-variant" onPress={() => setPicking(true)} disabled={patch.isPending}>
