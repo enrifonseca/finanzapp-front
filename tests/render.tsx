@@ -1,15 +1,15 @@
 import { render } from '@testing-library/react-native';
 import type { ReactElement } from 'react';
-import { MemoryTokenStorage, type StoredSession, type TokenStorage } from '@/core-react';
+import { MemoryPreferences, MemoryTokenStorage, type PreferenceStorage, type StoredSession, type TokenStorage } from '@/core-react';
 import { AppProviders } from '@/kernel';
 
 export const TEST_API = 'http://api.test';
 
-export async function renderWithProviders(ui: ReactElement, opts: { storage?: TokenStorage; session?: StoredSession; authSandbox?: boolean } = {}) {
+export async function renderWithProviders(ui: ReactElement, opts: { storage?: TokenStorage; session?: StoredSession; authSandbox?: boolean; preferences?: PreferenceStorage } = {}) {
   const storage = opts.storage ?? new MemoryTokenStorage();
   if (opts.session) await storage.set(opts.session);
   return await render(
-    <AppProviders baseUrl={TEST_API} storage={storage} authSandbox={opts.authSandbox ?? false}>
+    <AppProviders baseUrl={TEST_API} storage={storage} authSandbox={opts.authSandbox ?? false} preferences={opts.preferences ?? new MemoryPreferences()}>
       {ui}
     </AppProviders>,
   );

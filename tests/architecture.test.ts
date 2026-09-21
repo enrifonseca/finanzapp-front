@@ -38,3 +38,27 @@ describe('dependencias entre capas del frontend', () => {
     expect(offenders).toEqual([]);
   });
 });
+
+describe('tipografía y colores: una sola fuente de verdad', () => {
+  const files = [...walk('src'), ...walk('app')];
+
+  it('ningún componente fija fontFamily fuera de Roboto ni usa fontWeight (el peso va por familia Roboto)', () => {
+    const offenders = files.filter((f) => {
+      if (f.endsWith('ui-system/fonts.ts')) return false;
+      const src = readFileSync(f, 'utf8');
+      const badFamily = [...src.matchAll(/fontFamily:\s*([^,}\n]+)/g)].some((m) => !/FONT\.(regular|medium|bold)/.test(m[1]!));
+      return badFamily || /fontWeight/.test(src);
+    });
+    expect(offenders).toEqual([]);
+  });
+
+  it('los colores hexadecimales viven solo en el tema', () => {
+    const offenders = files.filter((f) => !f.endsWith('ui-system/theme.ts') && /#[0-9A-Fa-f]{6}\b/.test(readFileSync(f, 'utf8')));
+    expect(offenders).toEqual([]);
+  });
+
+  it('el tema no lee el modo del sistema (useColorScheme): el oscuro es una elección del usuario', () => {
+    const offenders = files.filter((f) => /useColorScheme/.test(readFileSync(f, 'utf8')));
+    expect(offenders).toEqual([]);
+  });
+});
